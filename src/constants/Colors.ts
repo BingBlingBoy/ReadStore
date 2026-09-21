@@ -1,0 +1,23 @@
+export const Colors = {
+  primary: '#6366f1',
+  primaryLight: '#818cf8',
+  primaryDark: '#4f46e5',
+  secondary: '#10b981',
+  secondaryLight: '#34d399',
+  accent: '#f59e0b',
+  accentLight: '#fbbf24',
+  success: '#10b981',
+  error: '#ef4444',
+  warning: '#f59e0b',
+  background: '#0f172a',
+  surface: '#1e293b',
+  surfaceLight: '#334155',
+  text: '#f1f5f9',
+  textSecondary: '#cbd5e1',
+  textTertiary: '#94a3b8',
+  border: '#334155',
+  scannerOverlay: 'rgba(0, 0, 0, 0.6)',
+  scannerFrame: '#6366f1',
+  scannerCorner: '#10b981',
+};
+
