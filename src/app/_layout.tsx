@@ -12,6 +12,7 @@ SplashScreen.preventAutoHideAsync();
 export default function TabLayout() {
   const colorScheme = useColorScheme();
   
+  // This is where you load assets and resources
   useEffect(() => {
     SplashScreen.hideAsync()
   }, [])

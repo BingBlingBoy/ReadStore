@@ -1,18 +1,18 @@
-import React, { useState, useEffect } from 'react';
+import { CameraView, useCameraPermissions } from 'expo-camera';
+import { useEffect, useState } from 'react';
 import {
-  View,
-  Text,
-  StyleSheet,
   Alert,
-  StatusBar,
-  TouchableOpacity,
   Linking,
   Platform,
+  StatusBar,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from 'react-native';
-import { CameraView, useCameraPermissions } from 'expo-camera';
-import { ScannerOverlay } from '../components/ScannerOverlay';
 import { ScannedDataCard } from '../components/ScannedDataCard';
-import { Colors } from '../constants/Colors';
+import { ScannerOverlay } from '../components/ScannerOverlay';
+import { CameraIcon } from '../helper/Icon';
 
 export default function Index() {
   const [permission, requestPermission] = useCameraPermissions();
@@ -33,6 +33,8 @@ export default function Index() {
       Alert.alert(
         'Permission Required',
         'Camera permission is required to scan QR codes and barcodes.',
+
+        // These are buttons at the bottom
         [
           { text: 'Cancel', style: 'cancel' },
           {
@@ -73,28 +75,29 @@ export default function Index() {
 
   if (permission === null) {
     return (
-      <View style={styles.loadingContainer}>
-        <Text style={styles.loadingText}>Requesting camera permission...</Text>
+      <View className='flex items-center justify-center gap-6 bg-background'>
+        <Text className='text-xl text-secondaryText'>Requesting camera permission...</Text>
       </View>
     );
   }
 
   if (!permission.granted) {
     return (
-      <View style={styles.permissionContainer}>
-        <Text style={styles.permissionTitle}>Camera Access Denied</Text>
-        <Text style={styles.permissionText}>
+      <View className='w-full flex items-center bg-background justify-center p-8 flex-1 gap-y-4'>
+        <CameraIcon className='w-32 h-32 text-red-500'/>
+        <Text className='text-3xl font-bold text-center text-title'>Camera Access Denied</Text>
+        <Text className='text-xl text-secondaryText text-center'>
           Please enable camera permissions in your device settings to use the scanner.
         </Text>
-        <TouchableOpacity style={styles.permissionButton} onPress={handleRequestPermission}>
-          <Text style={styles.permissionButtonText}>Try Again</Text>
+        <TouchableOpacity className='flex flex-row items-center bg-primary px-6 py-4 rounded-md' onPress={handleRequestPermission}>
+          <Text className='text-xl text-primaryText font-semibold'>Try Again</Text>
         </TouchableOpacity>
       </View>
     );
   }
 
   return (
-    <View style={styles.container}>
+    <View className='bg-background flex-1'>
       <StatusBar barStyle="light-content" />
       <CameraView
         onBarcodeScanned={scanned ? undefined : handleBarCodeScanned}
@@ -104,13 +107,13 @@ export default function Index() {
         style={StyleSheet.absoluteFill}
       />
       <ScannerOverlay scanning={scanning && !scanned} />
-      <View style={styles.header}>
-        <View style={styles.headerContent}>
-          <View style={styles.headerIcon}>
+      <View className={`${Platform.OS === 'ios' ? 'pt-16' : 'pt-10'} pb-5 px-5 bg-background`}>
+        <View className='flex flex-row items-center gap-4'>
+          <View className='w-14 h-14 rounded-2xl flex justify-center items-center opacity-90 bg-surface'>
           </View>
           <View>
-            <Text style={styles.headerTitle}>QR & Barcode Scanner</Text>
-            <Text style={styles.headerSubtitle}>
+            <Text className='text-2xl font-semibold text-primaryText'>QR & Barcode Scanner</Text>
+            <Text className='text-sm mt-4 text-secondaryText'>
               {scanning ? 'Position code within frame' : 'Scan complete'}
             </Text>
           </View>
@@ -127,88 +130,3 @@ export default function Index() {
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: Colors.background,
-  },
-  loadingContainer: {
-    flex: 1,
-    backgroundColor: Colors.background,
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 24,
-  },
-  loadingText: {
-    fontSize: 18,
-    color: Colors.textSecondary,
-    fontWeight: '500',
-  },
-  permissionContainer: {
-    flex: 1,
-    backgroundColor: Colors.background,
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: 32,
-    gap: 24,
-  },
-  permissionTitle: {
-    fontSize: 24,
-    fontWeight: '700',
-    color: Colors.text,
-    textAlign: 'center',
-  },
-  permissionText: {
-    fontSize: 16,
-    color: Colors.textSecondary,
-    textAlign: 'center',
-    lineHeight: 24,
-  },
-  permissionButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: Colors.primary,
-    paddingHorizontal: 24,
-    paddingVertical: 14,
-    borderRadius: 12,
-    gap: 8,
-    marginTop: 8,
-  },
-  permissionButtonText: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: Colors.text,
-  },
-  header: {
-    paddingTop: Platform.OS === 'ios' ? 60 : 40,
-    paddingBottom: 20,
-    paddingHorizontal: 20,
-    backgroundColor: 'transparent',
-  },
-  headerContent: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 16,
-  },
-  headerIcon: {
-    width: 56,
-    height: 56,
-    borderRadius: 16,
-    backgroundColor: Colors.surface,
-    alignItems: 'center',
-    justifyContent: 'center',
-    opacity: 0.9,
-  },
-  headerTitle: {
-    fontSize: 24,
-    fontWeight: '700',
-    color: Colors.text,
-  },
-  headerSubtitle: {
-    fontSize: 14,
-    color: Colors.textSecondary,
-    marginTop: 4,
-  },
-});
-
