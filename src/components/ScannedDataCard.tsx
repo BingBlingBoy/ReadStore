@@ -10,7 +10,6 @@ import { ScanBarcode, X } from '../helper/Icon';
 
 interface ScannedDataCardProps {
   data: string;
-  type: string;
   onClose: () => void;
   onScanAgain: () => void;
 }
@@ -18,7 +17,6 @@ interface ScannedDataCardProps {
 export default function ScannedDataCard(
   {
   data,
-  type,
   onClose,
   onScanAgain
   }
@@ -66,7 +64,7 @@ export default function ScannedDataCard(
         absolute bottom-1 left-0 right-0
         bg-surface max-h-[70%] 
         shadow-black/30 rounded-t-3xl elevation-[10]
-        m-4
+        m-1
       '
       style={[
         {
@@ -86,7 +84,6 @@ export default function ScannedDataCard(
           <ScanBarcode className='w-16 h-16 text-primary'/>
         </View>
         <View className='flex-1'>
-          <Text className='text-secondaryText mb-1 text-md font-bold'>{type.toUpperCase()}</Text>
           <Text className='text-xl font-semibold text-primaryText'>Scanned Successfully</Text>
         </View>
         <TouchableOpacity onPress={onClose} className='p-2'>

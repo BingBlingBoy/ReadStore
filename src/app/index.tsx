@@ -19,7 +19,6 @@ export default function Index() {
   const [scanned, setScanned] = useState(false);
   const [scanning, setScanning] = useState(true);
   const [scannedData, setScannedData] = useState<string>('');
-  const [scannedType, setScannedType] = useState<string>('');
 
   useEffect(() => {
     if (permission === null) {
@@ -52,12 +51,11 @@ export default function Index() {
     }
   };
 
-  const handleBarCodeScanned = ({ data, type }: { data: string; type: string }) => {
+  const handleBarCodeScanned = ({ data }: { data: string;}) => {
     if (!scanned) {
       setScanned(true);
       setScanning(false);
       setScannedData(data);
-      setScannedType(type);
     }
   };
 
@@ -65,12 +63,12 @@ export default function Index() {
     setScanned(false);
     setScanning(true);
     setScannedData('');
-    setScannedType('');
   };
 
   const handleCloseCard = () => {
     setScannedData('');
-    setScannedType('');
+    setScanned(false);
+    setScanning(true);
   };
 
   if (permission === null) {
@@ -123,7 +121,6 @@ export default function Index() {
       {scanned && scannedData && (
         <ScannedDataCard
           data={scannedData}
-          type={scannedType}
           onClose={handleCloseCard}
           onScanAgain={handleScanAgain}
         />
