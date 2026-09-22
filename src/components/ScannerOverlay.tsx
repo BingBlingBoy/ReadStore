@@ -1,16 +1,18 @@
-import React from 'react';
-import { View, StyleSheet, Animated } from 'react-native';
-import { Colors } from '../constants/Colors';
+import { useEffect, useRef } from 'react';
+import { Animated, View } from 'react-native';
 
 interface ScannerOverlayProps {
   scanning: boolean;
 }
 
-export const ScannerOverlay: React.FC<ScannerOverlayProps> = ({ scanning }) => {
-  const animatedValue = React.useRef(new Animated.Value(0)).current;
+export default function ScannerOverlay({
+  scanning
+}: ScannerOverlayProps) {
+  const animatedValue = useRef(new Animated.Value(0)).current;
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (scanning) {
+      // Loops and sequence goes up and down
       Animated.loop(
         Animated.sequence([
           Animated.timing(animatedValue, {
@@ -30,109 +32,56 @@ export const ScannerOverlay: React.FC<ScannerOverlayProps> = ({ scanning }) => {
 
   const translateY = animatedValue.interpolate({
     inputRange: [0, 1],
-    outputRange: [0, 200],
+    outputRange: [0, 250],
   });
 
   return (
-    <View style={styles.container}>
-      <View style={styles.topOverlay} />
-      <View style={styles.middleRow}>
-        <View style={styles.sideOverlay} />
-        <View style={styles.scanArea}>
-          <View style={styles.cornerTopLeft} />
-          <View style={styles.cornerTopRight} />
+    <View className='absolute top-0 bottom-0 left-0 right-0'>
+      <View className='flex-1 bg-scannerOverlay'/>
+      <View className='flex-row h-[250px]'>
+        <View className='flex-1' />
+        <View className='w-[250px] h-[250px] relative'>
+          <View className='
+            absolute top-0 left-0
+            w-8 h-8
+            border-t-4 border-l-4 border-scannerCorner
+          '
+          />
+          <View className='
+            absolute top-0 right-0
+            w-8 h-8
+            border-t-4 border-r-4 border-scannerCorner
+          '
+          />
           {scanning && (
             <Animated.View
+              className='
+                absolute left-0 right-0
+                h-2 bg-scannerFrame opacity-20
+              '
               style={[
-                styles.scanLine,
                 {
                   transform: [{ translateY }],
                 },
               ]}
             />
           )}
-          <View style={styles.cornerBottomLeft} />
-          <View style={styles.cornerBottomRight} />
+          <View className='
+            absolute bottom-0 left-0
+            w-8 h-8
+            border-b-4 border-l-4 border-scannerCorner
+          '
+          />
+          <View className='
+            absolute bottom-0 right-0
+            w-8 h-8
+            border-b-4 border-r-4 border-scannerCorner
+          '
+          />
         </View>
-        <View style={styles.sideOverlay} />
+        <View className='flex-1'/>
       </View>
-      <View style={styles.bottomOverlay} />
+      <View className='flex-1 bg-scannerOverlay' />
     </View>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    ...StyleSheet.absoluteFill,
-  },
-  topOverlay: {
-    flex: 1,
-    backgroundColor: Colors.scannerOverlay,
-  },
-  middleRow: {
-    flexDirection: 'row',
-    height: 250,
-  },
-  sideOverlay: {
-    flex: 1,
-    backgroundColor: Colors.scannerOverlay,
-  },
-  scanArea: {
-    width: 250,
-    height: 250,
-    position: 'relative',
-  },
-  cornerTopLeft: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    width: 30,
-    height: 30,
-    borderTopWidth: 4,
-    borderLeftWidth: 4,
-    borderColor: Colors.scannerCorner,
-  },
-  cornerTopRight: {
-    position: 'absolute',
-    top: 0,
-    right: 0,
-    width: 30,
-    height: 30,
-    borderTopWidth: 4,
-    borderRightWidth: 4,
-    borderColor: Colors.scannerCorner,
-  },
-  cornerBottomLeft: {
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    width: 30,
-    height: 30,
-    borderBottomWidth: 4,
-    borderLeftWidth: 4,
-    borderColor: Colors.scannerCorner,
-  },
-  cornerBottomRight: {
-    position: 'absolute',
-    bottom: 0,
-    right: 0,
-    width: 30,
-    height: 30,
-    borderBottomWidth: 4,
-    borderRightWidth: 4,
-    borderColor: Colors.scannerCorner,
-  },
-  scanLine: {
-    position: 'absolute',
-    left: 0,
-    right: 0,
-    height: 2,
-    backgroundColor: Colors.scannerFrame,
-    opacity: 0.8,
-  },
-  bottomOverlay: {
-    flex: 1,
-    backgroundColor: Colors.scannerOverlay,
-  },
-});
-

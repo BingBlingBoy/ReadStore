@@ -1,4 +1,4 @@
-import { Camera as CameraIcon } from 'lucide-react-native';
+import { Camera as CameraIcon, ScanBarcode, X } from 'lucide-react-native';
 import { cssInterop } from 'nativewind';
 
 cssInterop(CameraIcon, {
@@ -12,4 +12,27 @@ cssInterop(CameraIcon, {
     },
 })
 
-export { CameraIcon };
+cssInterop(ScanBarcode, {
+    className: {
+        target: 'style',
+        nativeStyleToProp: {
+            color: true,
+            width: true,
+            height: true
+        }
+    }
+})
+
+cssInterop(X, {
+    className: {
+        target: 'style',
+        nativeStyleToProp: {
+            color: true,
+            width: true,
+            height: true
+        }
+    }
+})
+
+export { CameraIcon, ScanBarcode, X };
+

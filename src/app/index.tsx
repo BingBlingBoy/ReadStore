@@ -10,9 +10,9 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import { ScannedDataCard } from '../components/ScannedDataCard';
-import { ScannerOverlay } from '../components/ScannerOverlay';
-import { CameraIcon } from '../helper/Icon';
+import ScannedDataCard from '../components/ScannedDataCard';
+import ScannerOverlay from '../components/ScannerOverlay';
+import { CameraIcon, ScanBarcode } from '../helper/Icon';
 
 export default function Index() {
   const [permission, requestPermission] = useCameraPermissions();
@@ -110,6 +110,7 @@ export default function Index() {
       <View className={`${Platform.OS === 'ios' ? 'pt-16' : 'pt-10'} pb-5 px-5 bg-background`}>
         <View className='flex flex-row items-center gap-4'>
           <View className='w-14 h-14 rounded-2xl flex justify-center items-center opacity-90 bg-surface'>
+            <ScanBarcode className='w-16 h-16 text-primary'/>
           </View>
           <View>
             <Text className='text-2xl font-semibold text-primaryText'>QR & Barcode Scanner</Text>

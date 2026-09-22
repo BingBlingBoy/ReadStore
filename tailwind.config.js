@@ -17,6 +17,11 @@ module.exports = {
         primary: "#6366f1",
         background: "#0f172a",
         surface: "#1e293b",
+        border: "#334155",
+        surfaceLight: "#334155",
+        scannerOverlay: "oklch(21% 0.006 285.885)",
+        scannerCorner: "#6366f1",
+        scannerFrame: "#6366f1"
       }
     },
   },

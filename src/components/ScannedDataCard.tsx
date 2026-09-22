@@ -1,13 +1,12 @@
-import React, { useEffect, useRef } from 'react';
+import { useEffect, useRef } from 'react';
 import {
-  View,
-  Text,
-  StyleSheet,
   Animated,
-  TouchableOpacity,
   ScrollView,
+  Text,
+  TouchableOpacity,
+  View
 } from 'react-native';
-import { Colors } from '../constants/Colors';
+import { ScanBarcode, X } from '../helper/Icon';
 
 interface ScannedDataCardProps {
   data: string;
@@ -16,16 +15,19 @@ interface ScannedDataCardProps {
   onScanAgain: () => void;
 }
 
-export const ScannedDataCard: React.FC<ScannedDataCardProps> = ({
+export default function ScannedDataCard(
+  {
   data,
   type,
   onClose,
-  onScanAgain,
-}) => {
+  onScanAgain
+  }
+: ScannedDataCardProps) {
   const slideAnim = useRef(new Animated.Value(300)).current;
   const fadeAnim = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
+    // Parallel starts animations at the same time
     Animated.parallel([
       Animated.spring(slideAnim, {
         toValue: 0,
@@ -41,65 +43,68 @@ export const ScannedDataCard: React.FC<ScannedDataCardProps> = ({
     ]).start();
   }, [slideAnim, fadeAnim]);
 
-  const getTypeIcon = (codeType: string) => {
-    if (codeType.includes('qr')) return 'qr-code-scanner';
-    return 'qr-code-2';
-  };
+  // const isUrl = (text: string) => {
+  //   try {
+  //     const url = new URL(text);
+  //     return url.protocol === 'http:' || url.protocol === 'https:';
+  //   } catch {
+  //     return false;
+  //   }
+  // };
 
-  const getTypeColor = (codeType: string) => {
-    if (codeType.includes('qr')) return Colors.secondary;
-    return Colors.primary;
-  };
+  // const isEmail = (text: string) => {
+  //   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(text);
+  // };
 
-  const isUrl = (text: string) => {
-    try {
-      const url = new URL(text);
-      return url.protocol === 'http:' || url.protocol === 'https:';
-    } catch {
-      return false;
-    }
-  };
-
-  const isEmail = (text: string) => {
-    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(text);
-  };
-
-  const isPhone = (text: string) => {
-    return /^[\d\s\-\+\(\)]+$/.test(text) && text.replace(/\D/g, '').length >= 10;
-  };
+  // const isPhone = (text: string) => {
+  //   return /^[\d\s\-\+\(\)]+$/.test(text) && text.replace(/\D/g, '').length >= 10;
+  // };
 
   return (
     <Animated.View
+      className='
+        absolute bottom-1 left-0 right-0
+        bg-surface max-h-[70%] 
+        shadow-black/30 rounded-t-3xl elevation-[10]
+        m-4
+      '
       style={[
-        styles.container,
         {
           transform: [{ translateY: slideAnim }],
           opacity: fadeAnim,
         },
       ]}
     >
-      <View style={styles.header}>
-        <View style={styles.iconContainer}>
+      <View className='flex flex-row items-center p-5 border-b-[1px] border-border'>
+        <View 
+          className='
+            w-14 h-14 rounded-2xl
+            flex items-center justify-center
+            mr-4 bg-surfaceLight
+          '
+        >
+          <ScanBarcode className='w-16 h-16 text-primary'/>
         </View>
-        <View style={styles.headerText}>
-          <Text style={styles.typeText}>{type.toUpperCase()}</Text>
-          <Text style={styles.scannedText}>Scanned Successfully</Text>
+        <View className='flex-1'>
+          <Text className='text-secondaryText mb-1 text-md font-bold'>{type.toUpperCase()}</Text>
+          <Text className='text-xl font-semibold text-primaryText'>Scanned Successfully</Text>
         </View>
-        <TouchableOpacity onPress={onClose} style={styles.closeButton}>
+        <TouchableOpacity onPress={onClose} className='p-2'>
+          <X className='text-secondaryText w-12 h-12'/>
         </TouchableOpacity>
       </View>
 
-      <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
-        <View style={styles.dataContainer}>
-          <Text style={styles.dataLabel}>Data:</Text>
-          <View style={styles.dataBox}>
-            <Text style={styles.dataText} selectable>
+      <ScrollView className='p-5' showsVerticalScrollIndicator={false}>
+        <View className='pb-6'>
+          <Text className='text-secondaryText mb-3 font-semibold text-md'>Data:</Text>
+          <View className='bg-surfaceLight rounded-xl p-5 border-border'>
+            <Text className='text-xl color-primaryText leading-6' selectable>
               {data}
             </Text>
           </View>
         </View>
 
-        <View style={styles.actionsContainer}>
+        {/* <View style={styles.actionsContainer}>
           {isUrl(data) && (
             <TouchableOpacity style={styles.actionButton}>
               <Text style={styles.actionText}>Open URL</Text>
@@ -121,124 +126,18 @@ export const ScannedDataCard: React.FC<ScannedDataCardProps> = ({
           <TouchableOpacity style={styles.actionButton}>
             <Text style={styles.actionText}>Share</Text>
           </TouchableOpacity>
-        </View>
+        </View> */}
       </ScrollView>
 
-      <TouchableOpacity style={styles.scanAgainButton} onPress={onScanAgain}>
-        <Text style={styles.scanAgainText}>Scan Again</Text>
+      <TouchableOpacity
+        className='
+          flex flex-row items-center justify-center
+          bg-primary py-4 m-5 rounded-2xl gap-3
+        '
+        onPress={onScanAgain}
+      >
+        <Text className='text-xl font-bold color-primaryText'>Scan Again</Text>
       </TouchableOpacity>
     </Animated.View>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
-    backgroundColor: Colors.surface,
-    borderTopLeftRadius: 24,
-    borderTopRightRadius: 24,
-    maxHeight: '70%',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: -4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-    elevation: 10,
-  },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    padding: 20,
-    borderBottomWidth: 1,
-    borderBottomColor: Colors.border,
-  },
-  iconContainer: {
-    width: 56,
-    height: 56,
-    borderRadius: 16,
-    backgroundColor: Colors.surfaceLight,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginRight: 16,
-  },
-  headerText: {
-    flex: 1,
-  },
-  typeText: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: Colors.textSecondary,
-    marginBottom: 4,
-  },
-  scannedText: {
-    fontSize: 18,
-    fontWeight: '700',
-    color: Colors.text,
-  },
-  closeButton: {
-    padding: 8,
-  },
-  content: {
-    padding: 20,
-  },
-  dataContainer: {
-    marginBottom: 24,
-  },
-  dataLabel: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: Colors.textSecondary,
-    marginBottom: 12,
-  },
-  dataBox: {
-    backgroundColor: Colors.surfaceLight,
-    borderRadius: 12,
-    padding: 16,
-    borderWidth: 1,
-    borderColor: Colors.border,
-  },
-  dataText: {
-    fontSize: 16,
-    color: Colors.text,
-    lineHeight: 24,
-  },
-  actionsContainer: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 12,
-  },
-  actionButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: Colors.surfaceLight,
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    borderRadius: 12,
-    gap: 8,
-    borderWidth: 1,
-    borderColor: Colors.border,
-  },
-  actionText: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: Colors.text,
-  },
-  scanAgainButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: Colors.primary,
-    paddingVertical: 16,
-    margin: 20,
-    borderRadius: 16,
-    gap: 12,
-  },
-  scanAgainText: {
-    fontSize: 16,
-    fontWeight: '700',
-    color: Colors.text,
-  },
-});
-
