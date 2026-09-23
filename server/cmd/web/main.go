@@ -1,17 +1,30 @@
 package main
 
 import (
-	"log"
+	"flag"
+	"log/slog"
 	"net/http"
+	"os"
 )
 
+// This application can use the functions attached to it
+type application struct {
+	logger *slog.Logger
+}
+
 func main() {
-	mux := http.NewServeMux()
-	mux.HandleFunc("GET /api/books/{id}", bookView)
-	mux.HandleFunc("POST /api/books/create", bookCreate)
+	addr := flag.String("addr", ":4000", "HTTP network address")
+	flag.Parse()
 
-	log.Print("starting server on :4000")
+	logger := slog.New(slog.NewTextHandler(os.Stdout, nil))
 
-	err := http.ListenAndServe(":4000", mux)
-	log.Fatal(err)
+	app := &application{
+		logger: logger,
+	}
+
+	logger.Info("starting server", "addr", addr)
+
+	err := http.ListenAndServe(*addr, app.routes())
+	logger.Error(err.Error())
+	os.Exit(1)
 }

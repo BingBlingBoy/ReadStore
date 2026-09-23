@@ -6,12 +6,12 @@ import (
 	"strconv"
 )
 
-func bookCreate(w http.ResponseWriter, r *http.Request) {
+func (app *application) bookCreate(w http.ResponseWriter, r *http.Request) {
 	w.Header().Add("Server", "Go")
 	w.Write([]byte("Hello from server"))
 }
 
-func bookView(w http.ResponseWriter, r *http.Request) {
+func (app *application) bookView(w http.ResponseWriter, r *http.Request) {
 	id, err := strconv.Atoi(r.PathValue("id"))
 	if err != nil || id < 1 {
 		http.NotFound(w, r)
