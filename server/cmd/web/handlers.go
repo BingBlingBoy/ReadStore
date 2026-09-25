@@ -71,3 +71,15 @@ func (app *application) bookView(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "%+v", book)
 
 }
+
+func (app *application) bookViewAll(w http.ResponseWriter, r *http.Request) {
+	books, err := app.read.GetAll()
+	if err != nil {
+		app.serverError(w, r, err)
+		return
+	}
+
+	for _, book := range books {
+		fmt.Fprintf(w, "%+v", book)
+	}
+}

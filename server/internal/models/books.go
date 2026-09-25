@@ -6,7 +6,6 @@ import (
 )
 
 type Book struct {
-	idBytes     []byte
 	idText      string
 	Title       string
 	Author      string
@@ -52,14 +51,14 @@ func (m *ReadModel) Insert(
 
 func (m *ReadModel) Get(isbn string) (Book, error) {
 	stmt := `
-		SELECT id_bin, id_text, title, author, isbn, no_of_pages, publisher, publish_date, review FROM book
+		SELECT id_text, title, author, isbn, no_of_pages, publisher, publish_date, review FROM book
 		WHERE isbn = ?;
 	`
 
 	row := m.DB.QueryRow(stmt, isbn)
 
 	var b Book
-	err := row.Scan(&b.idBytes, &b.idText, &b.Title, &b.ISBN, &b.Author, &b.NoOfPages, &b.Publisher, &b.PublishDate, &b.Review)
+	err := row.Scan(&b.idText, &b.Title, &b.ISBN, &b.Author, &b.NoOfPages, &b.Publisher, &b.PublishDate, &b.Review)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return Book{}, ErrNoRecord
@@ -71,6 +70,31 @@ func (m *ReadModel) Get(isbn string) (Book, error) {
 	return b, nil
 }
 
-func (m *ReadModel) Latest() ([]Book, error) {
-	return nil, nil
+func (m *ReadModel) GetAll() ([]Book, error) {
+	stmt := `
+		SELECT id_text, title, author, isbn, no_of_pages, publisher, publish_date, review FROM book
+	`
+
+	rows, err := m.DB.Query(stmt)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var books []Book
+
+	for rows.Next() {
+		var b Book
+		err := rows.Scan(&b.idText, &b.Title, &b.ISBN, &b.Author, &b.NoOfPages, &b.Publisher, &b.PublishDate, &b.Review)
+		if err != nil {
+			return nil, err
+		}
+		books = append(books, b)
+	}
+
+	if err = rows.Err(); err != nil {
+		return nil, err
+	}
+
+	return books, nil
 }
