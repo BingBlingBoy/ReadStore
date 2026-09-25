@@ -2,12 +2,14 @@ package main
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"net/http"
-	"strconv"
+
+	"readstore_server/internal/models"
+	"readstore_server/internal/services"
 
 	"github.com/google/uuid"
-	"readstore_server/internal/services"
 )
 
 type ReviewReq struct {
@@ -18,7 +20,7 @@ func (app *application) bookCreate(w http.ResponseWriter, r *http.Request) {
 	w.Header().Add("Server", "Go")
 
 	if r.Method != http.MethodPost {
-		app.logger.Error("Method doesn't match")
+		app.serverError(w, r, errors.New("Method doesn't match"))
 		return
 	}
 	defer r.Body.Close()
@@ -54,11 +56,18 @@ func (app *application) bookCreate(w http.ResponseWriter, r *http.Request) {
 }
 
 func (app *application) bookView(w http.ResponseWriter, r *http.Request) {
-	id, err := strconv.Atoi(r.PathValue("id"))
-	if err != nil || id < 1 {
-		http.NotFound(w, r)
+	isbn := string(r.PathValue("isbn"))
+
+	book, err := app.read.Get(isbn)
+	if err != nil {
+		if errors.Is(err, models.ErrNoRecord) {
+			http.NotFound(w, r)
+		} else {
+			app.serverError(w, r, err)
+		}
 		return
 	}
 
-	fmt.Fprintf(w, "Display a specific snippet with ID %d...", id)
+	fmt.Fprintf(w, "%+v", book)
+
 }

@@ -2,12 +2,12 @@ package models
 
 import (
 	"database/sql"
-
-	"github.com/google/uuid"
+	"errors"
 )
 
 type Book struct {
-	UUIDBin     []byte
+	idBytes     []byte
+	idText      string
 	Title       string
 	Author      string
 	ISBN        string
@@ -50,8 +50,25 @@ func (m *ReadModel) Insert(
 	return int(id), nil
 }
 
-func (m *ReadModel) Get(id uuid.UUID) (Book, error) {
-	return Book{}, nil
+func (m *ReadModel) Get(isbn string) (Book, error) {
+	stmt := `
+		SELECT id_bin, id_text, title, author, isbn, no_of_pages, publisher, publish_date, review FROM book
+		WHERE isbn = ?;
+	`
+
+	row := m.DB.QueryRow(stmt, isbn)
+
+	var b Book
+	err := row.Scan(&b.idBytes, &b.idText, &b.Title, &b.ISBN, &b.Author, &b.NoOfPages, &b.Publisher, &b.PublishDate, &b.Review)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return Book{}, ErrNoRecord
+		} else {
+			return Book{}, nil
+		}
+	}
+
+	return b, nil
 }
 
 func (m *ReadModel) Latest() ([]Book, error) {
