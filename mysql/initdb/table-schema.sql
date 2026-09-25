@@ -7,5 +7,6 @@ CREATE TABLE book(
   isbn VARCHAR(17),
   no_of_pages INT,
   publisher VARCHAR(255),
+  publish_date YEAR,
   review TEXT
 );

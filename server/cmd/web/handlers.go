@@ -1,29 +1,50 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
-	"github.com/google/uuid"
 	"net/http"
 	"strconv"
+
+	"github.com/google/uuid"
+	"readstore_server/internal/services"
 )
+
+type ReviewReq struct {
+	Review string `json:"review"`
+}
 
 func (app *application) bookCreate(w http.ResponseWriter, r *http.Request) {
 	w.Header().Add("Server", "Go")
 
+	if r.Method != http.MethodPost {
+		app.logger.Error("Method doesn't match")
+		return
+	}
+	defer r.Body.Close()
+
+	var req ReviewReq
+	err := json.NewDecoder(r.Body).Decode(&req)
+	if err != nil {
+		return
+	}
+
+	isbn := string(r.PathValue("isbn"))
+
+	data, err := services.GetOpenLibraryBook(isbn)
+	if err != nil {
+		app.logger.Error(err.Error())
+		return
+	}
+
 	id := uuid.New()
 	idBytes, err := id.MarshalBinary()
 	if err != nil {
-		panic(err)
+		app.logger.Error(err.Error())
+		return
 	}
 
-	title := "go title"
-	author := "go author"
-	isbn := "go isbn"
-	noOfPages := 67
-	publisher := "go publisher"
-	review := "go review"
-
-	_, err = app.read.Insert(idBytes, title, author, isbn, noOfPages, publisher, review)
+	_, err = app.read.Insert(idBytes, data.Title, data.Author, isbn, data.NumberOfPages, data.Publisher, data.PublisherYear, req.Review)
 	if err != nil {
 		app.serverError(w, r, err)
 		return

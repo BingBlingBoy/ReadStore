@@ -7,13 +7,14 @@ import (
 )
 
 type Book struct {
-	UUIDBin   []byte
-	Title     string
-	Author    string
-	ISBN      string
-	NoOfPages string
-	Publisher string
-	Review    string
+	UUIDBin     []byte
+	Title       string
+	Author      string
+	ISBN        string
+	NoOfPages   string
+	Publisher   string
+	PublishDate string
+	Review      string
 }
 
 type ReadModel struct {
@@ -27,15 +28,16 @@ func (m *ReadModel) Insert(
 	isbn string,
 	noOfPages int,
 	publisher string,
+	publishDate string,
 	review string,
 ) (int, error) {
 	stmt := `
-		INSERT INTO book (id_bin, title, author, isbn, no_of_pages, publisher, review) VALUES (
-			?, ?, ?, ?, ?, ?, ?
+		INSERT INTO book (id_bin, title, author, isbn, no_of_pages, publisher, publish_date, review) VALUES (
+			?, ?, ?, ?, ?, ?, ?, ?
 		);
 	`
 
-	res, err := m.DB.Exec(stmt, idBytes, title, author, isbn, noOfPages, publisher, review)
+	res, err := m.DB.Exec(stmt, idBytes, title, author, isbn, noOfPages, publisher, publishDate, review)
 	if err != nil {
 		return 0, err
 	}
