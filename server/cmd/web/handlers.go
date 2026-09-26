@@ -17,8 +17,6 @@ type ReviewReq struct {
 }
 
 func (app *application) bookCreate(w http.ResponseWriter, r *http.Request) {
-	w.Header().Add("Server", "Go")
-
 	if r.Method != http.MethodPost {
 		app.serverError(w, r, errors.New("Method doesn't match"))
 		return
