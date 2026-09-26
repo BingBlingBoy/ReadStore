@@ -1,0 +1,27 @@
+import { cva } from 'class-variance-authority'
+import { clsx, type ClassValue } from 'clsx'
+import { twMerge } from 'tailwind-merge'
+
+function cn(...inputs: ClassValue[]) {
+    return twMerge(clsx(inputs))
+}
+
+const buttonVariants = cva(
+    'flex flex-row items-center disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer',
+    {
+        variants: {
+            variant: {
+                primary: 'bg-primary border border-border hover:border-hover text-primaryText hover:bg-primaryHover rounded-xl',
+                secondary: 'bg-secondary border border-transparent text-secondaryText hover:border-borderHover hover:bg-secondaryHover rounded-xl'
+            },
+            size: {
+                sm: "px-1 py-1.5 text-sm",
+                md: "px-3 py-2.5 text-base",
+                lg: "px-8 py-4 text-lg"
+            },
+        },
+        defaultVariants: {
+            variant: "primary"
+        }
+    }
+)

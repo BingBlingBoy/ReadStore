@@ -7,6 +7,7 @@ import {
   View
 } from 'react-native';
 import { ScanBarcode, X } from '../helper/Icon';
+import { Button } from './button';
 
 interface ScannedDataCardProps {
   data: string;
@@ -61,7 +62,7 @@ export default function ScannedDataCard(
   return (
     <Animated.View
       className='
-        absolute bottom-1 left-0 right-0
+        absolute bottom-10 left-0 right-0
         bg-surface max-h-[70%] 
         shadow-black/30 rounded-t-3xl elevation-[10]
         m-1
@@ -92,7 +93,7 @@ export default function ScannedDataCard(
       </View>
 
       <ScrollView className='p-5' showsVerticalScrollIndicator={false}>
-        <View className='pb-6'>
+        <View>
           <Text className='text-secondaryText mb-3 font-semibold text-md'>Data:</Text>
           <View className='bg-surfaceLight rounded-xl p-5 border-border'>
             <Text className='text-xl color-primaryText leading-6' selectable>
@@ -126,15 +127,15 @@ export default function ScannedDataCard(
         </View> */}
       </ScrollView>
 
-      <TouchableOpacity
-        className='
-          flex flex-row items-center justify-center
-          bg-primary py-4 m-5 rounded-2xl gap-3
-        '
+      <Button 
+        variant='primary'
+        size='lg'
         onPress={onScanAgain}
+        className='justify-center m-5'
       >
         <Text className='text-xl font-bold color-primaryText'>Scan Again</Text>
-      </TouchableOpacity>
+      </Button>
+
     </Animated.View>
   );
 };
