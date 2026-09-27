@@ -1,6 +1,7 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import {
   Animated,
+  Modal,
   ScrollView,
   Text,
   TouchableOpacity,
@@ -8,6 +9,7 @@ import {
 } from 'react-native';
 import { ScanBarcode, X } from '../helper/Icon';
 import { Button } from './button';
+import Input from './input';
 
 interface ScannedDataCardProps {
   data: string;
@@ -24,6 +26,24 @@ export default function ScannedDataCard(
 : ScannedDataCardProps) {
   const slideAnim = useRef(new Animated.Value(300)).current;
   const fadeAnim = useRef(new Animated.Value(0)).current;
+  
+  const [modalVisible, setModalVisible] = useState(false)
+  const [formData, setFormData] = useState({
+    title: "",
+    author: "",
+    isbn: "",
+    noOfPages: "",
+    publisher: "",
+    publisherDate: ""
+  })
+
+  useEffect(() => {
+    console.log(formData)
+  }, [formData])
+  
+  function updateForm(field: string, value: string) {
+    setFormData((prev) => ({...prev, [field]: value}))
+  }
 
   useEffect(() => {
     // Parallel starts animations at the same time
@@ -41,6 +61,8 @@ export default function ScannedDataCard(
       }),
     ]).start();
   }, [slideAnim, fadeAnim]);
+  
+  
 
   // const isUrl = (text: string) => {
   //   try {
@@ -58,7 +80,7 @@ export default function ScannedDataCard(
   // const isPhone = (text: string) => {
   //   return /^[\d\s\-\+\(\)]+$/.test(text) && text.replace(/\D/g, '').length >= 10;
   // };
-
+  
   return (
     <Animated.View
       className='
@@ -92,14 +114,20 @@ export default function ScannedDataCard(
         </TouchableOpacity>
       </View>
 
-      <ScrollView className='p-5' showsVerticalScrollIndicator={false}>
-        <View>
+      <ScrollView className='flex flex-col p-5 gap-8' showsVerticalScrollIndicator={false}>
+        <View className='pb-5'>
           <Text className='text-secondaryText mb-3 font-semibold text-md'>Data:</Text>
           <View className='bg-surfaceLight rounded-xl p-5 border-border'>
             <Text className='text-xl color-primaryText leading-6' selectable>
               {data}
             </Text>
           </View>
+        </View>
+        
+        <View className='flex flex-row justify-start items-center'>
+          <Button variant='secondary' size='md' onPress={() => setModalVisible(true)}>
+            <Text className='text-primaryText'>Send</Text>
+          </Button>
         </View>
 
         {/* <View style={styles.actionsContainer}>
@@ -126,6 +154,44 @@ export default function ScannedDataCard(
           </TouchableOpacity>
         </View> */}
       </ScrollView>
+      <Modal
+        animationType='slide'
+        transparent={true}
+        visible={modalVisible}
+        onRequestClose={() => {
+          setModalVisible(!modalVisible)
+        }}
+      >
+        <View className='flex items-center flex-col bg-surface w-full min-h-screen'>
+          <View className='m-2 mb-10 p-4 flex flex-row justify-between items-center w-full'>
+            <Text className='text-xl font-bold text-primaryText'>TESTING THE MODAL</Text>
+            <Button
+              variant='free'
+              size='sm'
+              onPress={() => setModalVisible(!modalVisible)}
+            >
+              <X className='text-secondaryText w-12 h-12'/>
+            </Button>
+          </View>
+          {/* <View className='w-full flex flex-row items-center px-8 gap-x-4'>
+            <Text className='text-primaryText text-2xl'>Title:</Text>
+            <TextInput
+              placeholder='Title'
+              className='text-primaryText bg-primary flex-1 rounded-md'
+              onChangeText={(text) => {updateForm('title', text)}}
+            />
+          </View> */}
+          <Input
+            variant='primary'
+            size='xl'
+            fieldText='Title'
+            fieldStyle='text-2xl text-primaryText'
+            onChangeText={(text) => {updateForm('title', text)}}
+            textInputStyle='rounded-md bg-primary'
+          >
+          </Input>
+        </View>
+      </Modal>
 
       <Button 
         variant='primary'

@@ -12,8 +12,9 @@ const buttonVariants = cva(
     {
         variants: {
             variant: {
-                primary: 'bg-primary border border-border hover:border-hover text-primaryText hover:bg-primaryHover rounded-xl',
-                secondary: 'bg-secondary border border-transparent text-secondaryText hover:border-borderHover hover:bg-secondaryHover rounded-xl'
+                primary: 'bg-primary border border-border active:border-hover text-primaryText active:bg-primaryHover rounded-xl',
+                secondary: 'bg-secondary border border-transparent text-secondaryText active:border-borderHover active:bg-secondaryHover rounded-xl',
+                free: ''
             },
             size: {
                 sm: "px-1 py-1.5 text-sm",
@@ -36,7 +37,7 @@ export interface ButtonProps
 
 export const Button = ({className, variant, size, children, ...props}: ButtonProps) => {
     return (
-        <Pressable className={buttonVariants({ variant, size, className })} {...props}>
+        <Pressable className={cn(buttonVariants({ variant, size, className }))} {...props}>
             {children}
         </Pressable>
     )
