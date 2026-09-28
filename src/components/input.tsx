@@ -11,14 +11,14 @@ export interface FormInputProps
             fieldStyle?: string;
             textInputStyle?: string;
             children?: React.ReactNode;
-            fieldText: string;
+            fieldText?: string;
             viewStyle?: string;
         }
 
 export default function Input({fieldStyle, fieldText, textInputStyle, viewStyle, children, ...props}: FormInputProps) {
     return (
           <View className={cn('w-full flex flex-row items-center', viewStyle)}>
-            <Text className={fieldStyle}>{fieldText}:</Text>
+            <Text className={fieldStyle}>{fieldText}</Text>
             <TextInput
               placeholder={fieldText}
               className={cn(textInputStyle, 'flex-1')}

@@ -32,9 +32,10 @@ const initialFormState = {
   title: "",
   author: "",
   isbn: "",
-  noOfPages: 0,
+  noofpages: 0,
   publisher: "",
-  publisherDate: ""
+  publishdate: "",
+  review: ""
 };
 
 export default function ScannedDataCard(
@@ -51,7 +52,9 @@ export default function ScannedDataCard(
   const [formData, setFormData] = useState(initialFormState)
 
   function updateForm(field: string, value: string) {
-    setFormData((prev) => ({...prev, [field]: value}))
+    // console.log("Field:", field.toLowerCase())
+    // console.log("Value:", value)
+    setFormData((prev) => ({...prev, [field.toLowerCase()]: value}))
   }
   
   function handleFormSubmit() {
@@ -61,8 +64,9 @@ export default function ScannedDataCard(
   async function handleOpenModal(isbn: string) {
     try {
       const res: Book = await api.getBook(isbn)
-      console.log("Book:", res)
-
+      for (const [key, val] of Object.entries(res)) {
+        updateForm(key, val)
+      }
     } catch (err) {
       console.error(err)
     } finally {
@@ -149,7 +153,7 @@ export default function ScannedDataCard(
       >
         <View className='flex items-center flex-col bg-surface w-full min-h-screen'>
           <View className='m-2 mb-10 p-4 flex flex-row justify-between items-center w-full'>
-            <Text className='text-2xl font-bold text-primaryText'>TESTING THE MODAL</Text>
+            <Text className='text-2xl font-bold text-primaryText'>Current Book</Text>
             <Button
               variant='free'
               size='sm'
@@ -165,6 +169,7 @@ export default function ScannedDataCard(
             <Input
               viewStyle='gap-x-4'
               fieldText='Title'
+              value={formData.title}
               fieldStyle='text-2xl text-primaryText font-semibold'
               onChangeText={(text) => {updateForm('title', text)}}
               textInputStyle='rounded-md bg-primary'
@@ -172,6 +177,7 @@ export default function ScannedDataCard(
             </Input>
             <Input
               viewStyle='gap-x-4'
+              value={formData.author}
               fieldText='Author'
               fieldStyle='text-2xl text-primaryText font-semibold'
               onChangeText={(text) => {updateForm('author', text)}}
@@ -180,6 +186,7 @@ export default function ScannedDataCard(
             </Input>
             <Input
               viewStyle='gap-x-4'
+              value={formData.isbn}
               fieldText='ISBN'
               fieldStyle='text-2xl text-primaryText font-semibold'
               onChangeText={(text) => {updateForm('isbn', text)}}
@@ -188,6 +195,7 @@ export default function ScannedDataCard(
             </Input>
             <Input
               viewStyle='gap-x-4'
+              value={String(formData.noofpages)}
               fieldText='Number Of Pages'
               fieldStyle='text-2xl text-primaryText font-semibold'
               onChangeText={(text) => {updateForm('noOfPages', text)}}
@@ -196,6 +204,7 @@ export default function ScannedDataCard(
             </Input>
             <Input
               viewStyle='gap-x-4'
+              value={formData.publisher}
               fieldText='Publisher'
               fieldStyle='text-2xl text-primaryText font-semibold'
               onChangeText={(text) => {updateForm('publisher', text)}}
@@ -204,12 +213,25 @@ export default function ScannedDataCard(
             </Input>
             <Input
               viewStyle='gap-x-4'
+              value={formData.publishdate}
               fieldText='Publisher Date'
               fieldStyle='text-2xl text-primaryText font-semibold'
               onChangeText={(text) => {updateForm('publisherDate', text)}}
               textInputStyle='rounded-md bg-primary'
             >
             </Input>
+            
+            <View className='flex flex-col gap-y-4'>
+              <Text className='text-2xl text-primaryText font-semibold'>Review:</Text>
+              <Input
+                onChangeText={(text) => {updateForm('publisherDate', text)}}
+                textInputStyle='rounded-md bg-primary h-40'
+                multiline={true}
+                numberOfLines={10}
+                textAlignVertical='top'
+              >
+              </Input>
+            </View>
           </View>
           <Button
             variant='primary'
