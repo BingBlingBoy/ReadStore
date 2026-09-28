@@ -10,7 +10,7 @@ type Book struct {
 	Title       string
 	Author      string
 	ISBN        string
-	NoOfPages   string
+	NoOfPages   int
 	Publisher   string
 	PublishDate string
 	Review      string
@@ -58,7 +58,7 @@ func (m *ReadModel) Get(isbn string) (Book, error) {
 	row := m.DB.QueryRow(stmt, isbn)
 
 	var b Book
-	err := row.Scan(&b.idText, &b.Title, &b.ISBN, &b.Author, &b.NoOfPages, &b.Publisher, &b.PublishDate, &b.Review)
+	err := row.Scan(&b.idText, &b.Title, &b.Author, &b.ISBN, &b.NoOfPages, &b.Publisher, &b.PublishDate, &b.Review)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return Book{}, ErrNoRecord

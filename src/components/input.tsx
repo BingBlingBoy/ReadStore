@@ -1,49 +1,26 @@
-import { cva, VariantProps } from 'class-variance-authority'
-import { clsx, type ClassValue } from 'clsx'
-import { Text, TextInput, TextInputProps, View } from 'react-native'
-import { twMerge } from 'tailwind-merge'
+import { clsx, type ClassValue } from 'clsx';
+import { Text, TextInput, TextInputProps, View } from 'react-native';
+import { twMerge } from 'tailwind-merge';
 
 function cn(...inputs: ClassValue[]) {
     return twMerge(clsx(inputs))
 }
 
-const formInputVariants = cva(
-    'w-full flex flex-row items-center gap-x-4 px-8',
-    {
-        variants: {
-            variant: {
-                primary: 'text-primaryText',
-                secondary: 'text-secondaryText',
-                free: ''
-            },
-            size: {
-                sm: "py-1.5 text-sm",
-                md: "py-2.5 text-base",
-                lg: "py-3 text-lg",
-                xl: "py-4 text-2xl"
-            },
-        },
-        defaultVariants: {
-            variant: "primary"
-        }
-    }
-)
-
 export interface FormInputProps
-    extends TextInputProps,
-        VariantProps<typeof formInputVariants> {
+    extends TextInputProps{
             fieldStyle?: string;
             textInputStyle?: string;
             children?: React.ReactNode;
             fieldText: string;
+            viewStyle?: string;
         }
 
-export default function Input({variant, size, fieldStyle, fieldText, textInputStyle, children, ...props}: FormInputProps) {
+export default function Input({fieldStyle, fieldText, textInputStyle, viewStyle, children, ...props}: FormInputProps) {
     return (
-          <View className='w-full flex flex-row items-center gap-x-4 px-8'>
+          <View className={cn('w-full flex flex-row items-center', viewStyle)}>
             <Text className={fieldStyle}>{fieldText}:</Text>
             <TextInput
-              placeholder='Title'
+              placeholder={fieldText}
               className={cn(textInputStyle, 'flex-1')}
               {...props}
             />

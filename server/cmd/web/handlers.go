@@ -65,9 +65,15 @@ func (app *application) bookView(w http.ResponseWriter, r *http.Request) {
 		}
 		return
 	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
 
-	fmt.Fprintf(w, "%+v", book)
+	err = json.NewEncoder(w).Encode(book)
+	if err != nil {
+		app.serverError(w, r, err)
+	}
 
+	// fmt.Fprintf(w, "%+v", book)
 }
 
 func (app *application) bookViewAll(w http.ResponseWriter, r *http.Request) {

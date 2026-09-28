@@ -1,3 +1,4 @@
+import { api } from '@/lib/api';
 import { useEffect, useRef, useState } from 'react';
 import {
   Animated,
@@ -17,6 +18,25 @@ interface ScannedDataCardProps {
   onScanAgain: () => void;
 }
 
+interface Book {
+  Author: string;
+  ISBN: string;
+  NoOfPages: number;
+  PublishDate: string;
+  Publisher: string;
+  Review: string;
+  Title: string;
+}
+
+const initialFormState = {
+  title: "",
+  author: "",
+  isbn: "",
+  noOfPages: 0,
+  publisher: "",
+  publisherDate: ""
+};
+
 export default function ScannedDataCard(
   {
   data,
@@ -28,21 +48,26 @@ export default function ScannedDataCard(
   const fadeAnim = useRef(new Animated.Value(0)).current;
   
   const [modalVisible, setModalVisible] = useState(false)
-  const [formData, setFormData] = useState({
-    title: "",
-    author: "",
-    isbn: "",
-    noOfPages: "",
-    publisher: "",
-    publisherDate: ""
-  })
+  const [formData, setFormData] = useState(initialFormState)
 
-  useEffect(() => {
-    console.log(formData)
-  }, [formData])
-  
   function updateForm(field: string, value: string) {
     setFormData((prev) => ({...prev, [field]: value}))
+  }
+  
+  function handleFormSubmit() {
+    console.log("HELLo")
+  }
+  
+  async function handleOpenModal(isbn: string) {
+    try {
+      const res: Book = await api.getBook(isbn)
+      console.log("Book:", res)
+
+    } catch (err) {
+      console.error(err)
+    } finally {
+        setModalVisible(true)
+    }
   }
 
   useEffect(() => {
@@ -61,25 +86,6 @@ export default function ScannedDataCard(
       }),
     ]).start();
   }, [slideAnim, fadeAnim]);
-  
-  
-
-  // const isUrl = (text: string) => {
-  //   try {
-  //     const url = new URL(text);
-  //     return url.protocol === 'http:' || url.protocol === 'https:';
-  //   } catch {
-  //     return false;
-  //   }
-  // };
-
-  // const isEmail = (text: string) => {
-  //   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(text);
-  // };
-
-  // const isPhone = (text: string) => {
-  //   return /^[\d\s\-\+\(\)]+$/.test(text) && text.replace(/\D/g, '').length >= 10;
-  // };
   
   return (
     <Animated.View
@@ -125,34 +131,13 @@ export default function ScannedDataCard(
         </View>
         
         <View className='flex flex-row justify-start items-center'>
-          <Button variant='secondary' size='md' onPress={() => setModalVisible(true)}>
+          <Button variant='secondary' size='md' onPress={() => {
+            handleOpenModal(data)
+          }}>
             <Text className='text-primaryText'>Send</Text>
           </Button>
         </View>
 
-        {/* <View style={styles.actionsContainer}>
-          {isUrl(data) && (
-            <TouchableOpacity style={styles.actionButton}>
-              <Text style={styles.actionText}>Open URL</Text>
-            </TouchableOpacity>
-          )}
-          {isEmail(data) && (
-            <TouchableOpacity style={styles.actionButton}>
-              <Text style={styles.actionText}>Send Email</Text>
-            </TouchableOpacity>
-          )}
-          {isPhone(data) && (
-            <TouchableOpacity style={styles.actionButton}>
-              <Text style={styles.actionText}>Call</Text>
-            </TouchableOpacity>
-          )}
-          <TouchableOpacity style={styles.actionButton}>
-            <Text style={styles.actionText}>Copy</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.actionButton}>
-            <Text style={styles.actionText}>Share</Text>
-          </TouchableOpacity>
-        </View> */}
       </ScrollView>
       <Modal
         animationType='slide'
@@ -164,32 +149,76 @@ export default function ScannedDataCard(
       >
         <View className='flex items-center flex-col bg-surface w-full min-h-screen'>
           <View className='m-2 mb-10 p-4 flex flex-row justify-between items-center w-full'>
-            <Text className='text-xl font-bold text-primaryText'>TESTING THE MODAL</Text>
+            <Text className='text-2xl font-bold text-primaryText'>TESTING THE MODAL</Text>
             <Button
               variant='free'
               size='sm'
-              onPress={() => setModalVisible(!modalVisible)}
+              onPress={() => {
+                setModalVisible(!modalVisible)
+                setFormData(initialFormState)
+              }}
             >
               <X className='text-secondaryText w-12 h-12'/>
             </Button>
           </View>
-          {/* <View className='w-full flex flex-row items-center px-8 gap-x-4'>
-            <Text className='text-primaryText text-2xl'>Title:</Text>
-            <TextInput
-              placeholder='Title'
-              className='text-primaryText bg-primary flex-1 rounded-md'
+          <View className='w-full flex flex-col gap-y-4 px-4'>
+            <Input
+              viewStyle='gap-x-4'
+              fieldText='Title'
+              fieldStyle='text-2xl text-primaryText font-semibold'
               onChangeText={(text) => {updateForm('title', text)}}
-            />
-          </View> */}
-          <Input
+              textInputStyle='rounded-md bg-primary'
+            >
+            </Input>
+            <Input
+              viewStyle='gap-x-4'
+              fieldText='Author'
+              fieldStyle='text-2xl text-primaryText font-semibold'
+              onChangeText={(text) => {updateForm('author', text)}}
+              textInputStyle='rounded-md bg-primary'
+            >
+            </Input>
+            <Input
+              viewStyle='gap-x-4'
+              fieldText='ISBN'
+              fieldStyle='text-2xl text-primaryText font-semibold'
+              onChangeText={(text) => {updateForm('isbn', text)}}
+              textInputStyle='rounded-md bg-primary'
+            >
+            </Input>
+            <Input
+              viewStyle='gap-x-4'
+              fieldText='Number Of Pages'
+              fieldStyle='text-2xl text-primaryText font-semibold'
+              onChangeText={(text) => {updateForm('noOfPages', text)}}
+              textInputStyle='rounded-md bg-primary'
+            >
+            </Input>
+            <Input
+              viewStyle='gap-x-4'
+              fieldText='Publisher'
+              fieldStyle='text-2xl text-primaryText font-semibold'
+              onChangeText={(text) => {updateForm('publisher', text)}}
+              textInputStyle='rounded-md bg-primary'
+            >
+            </Input>
+            <Input
+              viewStyle='gap-x-4'
+              fieldText='Publisher Date'
+              fieldStyle='text-2xl text-primaryText font-semibold'
+              onChangeText={(text) => {updateForm('publisherDate', text)}}
+              textInputStyle='rounded-md bg-primary'
+            >
+            </Input>
+          </View>
+          <Button
             variant='primary'
-            size='xl'
-            fieldText='Title'
-            fieldStyle='text-2xl text-primaryText'
-            onChangeText={(text) => {updateForm('title', text)}}
-            textInputStyle='rounded-md bg-primary'
+            size='lg'
+            className='justify-center mb-10 mt-auto'
+            onPress={handleFormSubmit}
           >
-          </Input>
+            <Text className='text-xl font-bold color-primaryText'>Send</Text>
+          </Button>
         </View>
       </Modal>
 

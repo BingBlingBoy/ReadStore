@@ -28,7 +28,8 @@ func main() {
 		log.Fatal("Error loading .env file")
 	}
 	dbPass := os.Getenv("DB_PASS")
-	defaultDSN := fmt.Sprintf("web:%s@tcp(172.31.240.1:3306)/readstore?parseTime=true", dbPass)
+	dbIP := os.Getenv("IP")
+	defaultDSN := fmt.Sprintf("web:%s@tcp(%s:3306)/readstore?parseTime=true", dbPass, dbIP)
 	dsn := flag.String("dsn", defaultDSN, "MySQL data source name")
 
 	flag.Parse()
