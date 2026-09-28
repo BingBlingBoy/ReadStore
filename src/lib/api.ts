@@ -24,6 +24,7 @@ async function fetchData(path: string, options: RequestInit) {
     console.log("URL:", URL)
     const headers = new Headers(options.headers);
     headers.set('Content-Type', 'application/json')
+    console.log("Options:", options)
     
     let response = await fetch(URL, { ...options, headers })
     
@@ -35,7 +36,7 @@ function get(path: string) {
 }
 
 function post(path: string, body: object) {
-    return fetchData(path, {method: 'POST', body: JSON.stringify(body)})
+    fetchData(path, {method: 'POST', body: JSON.stringify(body)})
 }
 
 function patch(path: string, body: object) {
@@ -44,9 +45,12 @@ function patch(path: string, body: object) {
 
 export const api = {
     saveBook: (data: Book, isbn: string) => {
-        return post(`books/create/${isbn}`, {data})
+        post(`books/create/${isbn}`, {data})
     },
     getBook: (isbn: string) => {
         return get(`books/${isbn}`)
-    }
+    },
+    getOpenBook: (isbn: string) => {
+        return get(`books/open/${isbn}`)
+    },
 }

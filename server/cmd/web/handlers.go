@@ -4,6 +4,8 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"io"
+	"log"
 	"net/http"
 
 	"readstore_server/internal/models"
@@ -12,8 +14,23 @@ import (
 	"github.com/google/uuid"
 )
 
-type ReviewReq struct {
-	Review string `json:"review"`
+type OuterRequest struct {
+	Body   string `json:"body"`
+	Method string `json:"method"`
+}
+
+type BookRequest struct {
+	Data BookData `json:"data"`
+}
+
+type BookData struct {
+	Title         string `json:"Title"`
+	Author        string `json:"Author"`
+	ISBN          string `json:"ISBN"`
+	NumberOfPages int    `json:"NumberOfPages"`
+	Publisher     string `json:"Publisher"`
+	PublishDate   string `json:"PublishDate"`
+	Review        string `json:"Review"`
 }
 
 func (app *application) bookCreate(w http.ResponseWriter, r *http.Request) {
@@ -22,16 +39,30 @@ func (app *application) bookCreate(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	defer r.Body.Close()
-
-	var req ReviewReq
-	err := json.NewDecoder(r.Body).Decode(&req)
+	bodyBytes, err := io.ReadAll(r.Body)
 	if err != nil {
+		app.serverError(w, r, err)
 		return
 	}
 
+	if len(bodyBytes) == 0 {
+		app.serverError(w, r, errors.New("request body is empty"))
+		return
+	}
+
+	var req BookRequest
+	err = json.Unmarshal(bodyBytes, &req)
+	if err != nil {
+		app.logger.Error("Failed to decode JSON: " + err.Error())
+		app.serverError(w, r, err)
+		return
+	}
+
+	log.Printf("Successfully parsed book request: %+v", req)
 	isbn := string(r.PathValue("isbn"))
 
 	data, err := services.GetOpenLibraryBook(isbn)
+	log.Printf("book create:%+v", data)
 
 	if err != nil {
 		app.logger.Error(err.Error())
@@ -45,7 +76,7 @@ func (app *application) bookCreate(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	_, err = app.read.Insert(idBytes, data.Title, data.Author, isbn, data.NumberOfPages, data.Publisher, data.PublisherYear, req.Review)
+	_, err = app.read.Insert(idBytes, data.Title, data.Author, isbn, data.NumberOfPages, data.Publisher, data.PublishDate, req.Data.Review)
 	if err != nil {
 		app.serverError(w, r, err)
 		return

@@ -22,7 +22,8 @@ type BookData struct {
 	NumberOfPages int         `json:"number_of_pages"`
 	Authors       []Author    `json:"authors"`
 	Publishers    []Publisher `json:"publishers"`
-	PublishYear   string      `json:"publish_date"`
+	PublishDate   string      `json:"publish_date"`
+	ISBN          string
 }
 
 type Author struct {
@@ -38,7 +39,8 @@ type FormattedResponse struct {
 	NumberOfPages int
 	Author        string
 	Publisher     string
-	PublisherYear string
+	PublishDate   string
+	ISBN          string
 }
 
 func GetOpenLibraryBook(isbn string) (FormattedResponse, error) {
@@ -65,7 +67,7 @@ func GetOpenLibraryBook(isbn string) (FormattedResponse, error) {
 		return FormattedResponse{}, err
 	}
 
-	fresponse, err := processFirstRecord(response)
+	fresponse, err := processFirstRecord(response, isbn)
 	if err != nil {
 		return FormattedResponse{}, err
 	}
@@ -73,16 +75,16 @@ func GetOpenLibraryBook(isbn string) (FormattedResponse, error) {
 	return fresponse, nil
 }
 
-func processFirstRecord(response OpenLibraryResponse) (FormattedResponse, error) {
+func processFirstRecord(response OpenLibraryResponse, isbn string) (FormattedResponse, error) {
 	for _, record := range response.Records {
 		book := record.Data
-		return formatBookData(book), nil
+		return formatBookData(book, isbn), nil
 	}
 
 	return FormattedResponse{}, errors.New("API response has no records")
 }
 
-func formatBookData(book BookData) FormattedResponse {
+func formatBookData(book BookData, isbn string) FormattedResponse {
 	var authorNames []string
 
 	for _, author := range book.Authors {
@@ -99,6 +101,7 @@ func formatBookData(book BookData) FormattedResponse {
 		NumberOfPages: book.NumberOfPages,
 		Author:        strings.Join(authorNames, ", "),
 		Publisher:     strings.Join(pubNames, ", "),
-		PublisherYear: book.PublishYear,
+		PublishDate:   book.PublishDate,
+		ISBN:          isbn,
 	}
 }

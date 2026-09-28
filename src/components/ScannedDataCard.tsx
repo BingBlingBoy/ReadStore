@@ -21,7 +21,7 @@ interface ScannedDataCardProps {
 interface Book {
   Author: string;
   ISBN: string;
-  NoOfPages: number;
+  NumberOfPages: number;
   PublishDate: string;
   Publisher: string;
   Review: string;
@@ -32,7 +32,7 @@ const initialFormState = {
   title: "",
   author: "",
   isbn: "",
-  noofpages: 0,
+  numberofpages: 0,
   publisher: "",
   publishdate: "",
   review: ""
@@ -55,16 +55,22 @@ export default function ScannedDataCard(
     setFormData((prev) => ({...prev, [field.toLowerCase()]: value}))
   }
   
+  // useEffect(() => {
+  //   console.log("formData:", formData)
+  // }, [formData])
+  
   async function handleFormSubmit() {
     const book: Book = {
       Title: formData.title as Book["Title"],
       Author: formData.author as Book["Author"],
       ISBN: formData.isbn as Book["ISBN"],
-      NoOfPages: formData.noofpages as Book["NoOfPages"],
+      NumberOfPages: formData.numberofpages as Book["NumberOfPages"],
       Publisher: formData.publisher as Book["Publisher"],
       PublishDate: formData.publishdate as Book["PublishDate"],
       Review: formData.review as Book["Review"]
     }
+    
+    console.log("BOOK:", book)
     
     try {
       await api.saveBook(book, formData.isbn)
@@ -75,7 +81,8 @@ export default function ScannedDataCard(
   
   async function handleOpenModal(isbn: string) {
     try {
-      const res: Book = await api.getBook(isbn)
+      const res: Book = await api.getOpenBook(isbn)
+      console.log("res:", res)
       for (const [key, val] of Object.entries(res)) {
         updateForm(key, val)
       }
@@ -207,7 +214,7 @@ export default function ScannedDataCard(
             </Input>
             <Input
               viewStyle='gap-x-4'
-              value={String(formData.noofpages)}
+              value={String(formData.numberofpages)}
               fieldText='Number Of Pages'
               fieldStyle='text-2xl text-primaryText font-semibold'
               onChangeText={(text) => {updateForm('noOfPages', text)}}
@@ -236,7 +243,7 @@ export default function ScannedDataCard(
             <View className='flex flex-col gap-y-4'>
               <Text className='text-2xl text-primaryText font-semibold'>Review:</Text>
               <Input
-                onChangeText={(text) => {updateForm('publisherDate', text)}}
+                onChangeText={(text) => {updateForm('review', text)}}
                 textInputStyle='rounded-md bg-primary h-40'
                 multiline={true}
                 numberOfLines={10}
