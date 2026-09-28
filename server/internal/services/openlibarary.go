@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"log"
 	"net/http"
 	"strings"
 )
@@ -44,6 +45,7 @@ type FormattedResponse struct {
 func GetOpenLibraryBook(isbn string) (FormattedResponse, error) {
 
 	url := fmt.Sprintf("https://openlibrary.org/api/volumes/brief/isbn/%s.json", isbn)
+	log.Printf("URL:%s", url)
 	resp, err := http.Get(url)
 	if err != nil {
 		return FormattedResponse{}, err
@@ -69,6 +71,8 @@ func GetOpenLibraryBook(isbn string) (FormattedResponse, error) {
 	if err != nil {
 		return FormattedResponse{}, err
 	}
+
+	log.Printf("fresponse:%+v", fresponse)
 
 	return fresponse, nil
 }

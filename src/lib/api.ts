@@ -1,4 +1,4 @@
-const BASE_URL = process.env.EXPO_BASE_URL || "http://192.168.1.159:4000"
+const BASE_URL = process.env.EXPO_PUBLIC_API_URL
 
 export interface Book {
     ISBN: string;
@@ -43,8 +43,8 @@ function patch(path: string, body: object) {
 }
 
 export const api = {
-    saveBook: (data: Book) => {
-        return post('books', {data})
+    saveBook: (data: Book, isbn: string) => {
+        return post(`books/create/${isbn}`, {data})
     },
     getBook: (isbn: string) => {
         return get(`books/${isbn}`)

@@ -52,13 +52,25 @@ export default function ScannedDataCard(
   const [formData, setFormData] = useState(initialFormState)
 
   function updateForm(field: string, value: string) {
-    // console.log("Field:", field.toLowerCase())
-    // console.log("Value:", value)
     setFormData((prev) => ({...prev, [field.toLowerCase()]: value}))
   }
   
-  function handleFormSubmit() {
-    console.log("HELLo")
+  async function handleFormSubmit() {
+    const book: Book = {
+      Title: formData.title as Book["Title"],
+      Author: formData.author as Book["Author"],
+      ISBN: formData.isbn as Book["ISBN"],
+      NoOfPages: formData.noofpages as Book["NoOfPages"],
+      Publisher: formData.publisher as Book["Publisher"],
+      PublishDate: formData.publishdate as Book["PublishDate"],
+      Review: formData.review as Book["Review"]
+    }
+    
+    try {
+      await api.saveBook(book, formData.isbn)
+    } catch (err) {
+      console.error(err)
+    }
   }
   
   async function handleOpenModal(isbn: string) {

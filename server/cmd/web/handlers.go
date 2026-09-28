@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"log"
 	"net/http"
 
 	"readstore_server/internal/models"
@@ -30,8 +31,11 @@ func (app *application) bookCreate(w http.ResponseWriter, r *http.Request) {
 	}
 
 	isbn := string(r.PathValue("isbn"))
+	log.Printf("ISBN:%s", isbn)
 
 	data, err := services.GetOpenLibraryBook(isbn)
+	log.Printf("data:%s", data)
+
 	if err != nil {
 		app.logger.Error(err.Error())
 		return
@@ -49,8 +53,6 @@ func (app *application) bookCreate(w http.ResponseWriter, r *http.Request) {
 		app.serverError(w, r, err)
 		return
 	}
-
-	w.Write([]byte("Hello from server"))
 }
 
 func (app *application) bookView(w http.ResponseWriter, r *http.Request) {
