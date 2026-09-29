@@ -9,13 +9,10 @@ import (
 
 	"readstore_server/internal/models"
 	"readstore_server/internal/services"
+	"readstore_server/internal/validator"
 )
 
-type BookRequest struct {
-	Data BookData `json:"data"`
-}
-
-type BookData struct {
+type FormData struct {
 	Title         string `json:"Title"`
 	Author        string `json:"Author"`
 	ISBN          string `json:"ISBN"`
@@ -23,6 +20,9 @@ type BookData struct {
 	Publisher     string `json:"Publisher"`
 	PublishDate   string `json:"PublishDate"`
 	Review        string `json:"Review"`
+
+	// Embed validatyor so FormData inherits all the fields and methods of the Validator struct
+	validator.Validator
 }
 
 type SuccessResponse struct {
@@ -30,6 +30,7 @@ type SuccessResponse struct {
 }
 
 func (app *application) bookCreate(w http.ResponseWriter, r *http.Request) {
+	// Checks if it is a valid method and the body is valid and not empty
 	if r.Method != http.MethodPost {
 		app.serverError(w, r, errors.New("Method doesn't match"))
 		return
@@ -46,17 +47,35 @@ func (app *application) bookCreate(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var req BookRequest
-	err = json.Unmarshal(bodyBytes, &req)
+	var form FormData
+	err = json.Unmarshal(bodyBytes, &form)
 	if err != nil {
 		app.logger.Error("Failed to decode JSON: " + err.Error())
 		app.serverError(w, r, err)
 		return
 	}
 
+	// Form Errors
+	form.CheckField(validator.NotBlank(form.Title), "title", "This field cannot be blank")
+	form.CheckField(validator.NotBlank(form.ISBN), "isbn", "This field cannot be blank")
+	form.CheckField(validator.NotBlank(form.Author), "author", "This field cannot be blank")
+	form.CheckField(validator.MaxChars(form.ISBN, 17), "isbn", "This field cannot be more than 17 characters long")
+	form.CheckField(form.NumberOfPages > 0, "numberOfPages", "This field must be greater than zero")
+
+	if !form.Valid() {
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusUnprocessableEntity)
+
+		err = json.NewEncoder(w).Encode(form)
+		if err != nil {
+			app.serverError(w, r, err)
+		}
+		return
+	}
+
 	isbn := string(r.PathValue("isbn"))
 
-	_, err = app.read.Insert(isbn, req.Data.Title, req.Data.Author, req.Data.NumberOfPages, req.Data.Publisher, req.Data.PublishDate, req.Data.Review)
+	_, err = app.read.Insert(isbn, form.Title, form.Author, form.NumberOfPages, form.Publisher, form.PublishDate, form.Review)
 	if err != nil {
 		app.serverError(w, r, err)
 		return

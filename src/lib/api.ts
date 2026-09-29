@@ -43,7 +43,7 @@ function patch(path: string, body: object) {
 
 export const api = {
     saveBook: (data: Book, isbn: string) => {
-        post(`books/create/${isbn}`, {data})
+        post(`books/create/${isbn}`, data)
     },
     getBook: (isbn: string) => {
         return get(`books/${isbn}`)
