@@ -55,10 +55,6 @@ export default function ScannedDataCard(
     setFormData((prev) => ({...prev, [field.toLowerCase()]: value}))
   }
   
-  // useEffect(() => {
-  //   console.log("formData:", formData)
-  // }, [formData])
-  
   async function handleFormSubmit() {
     const book: Book = {
       Title: formData.title as Book["Title"],
@@ -70,19 +66,19 @@ export default function ScannedDataCard(
       Review: formData.review as Book["Review"]
     }
     
-    console.log("BOOK:", book)
     
     try {
       await api.saveBook(book, formData.isbn)
     } catch (err) {
       console.error(err)
+    } finally {
+      setModalVisible(false)
     }
   }
   
   async function handleOpenModal(isbn: string) {
     try {
       const res: Book = await api.getOpenBook(isbn)
-      console.log("res:", res)
       for (const [key, val] of Object.entries(res)) {
         updateForm(key, val)
       }

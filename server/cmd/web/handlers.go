@@ -5,19 +5,11 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"log"
 	"net/http"
 
 	"readstore_server/internal/models"
 	"readstore_server/internal/services"
-
-	"github.com/google/uuid"
 )
-
-type OuterRequest struct {
-	Body   string `json:"body"`
-	Method string `json:"method"`
-}
 
 type BookRequest struct {
 	Data BookData `json:"data"`
@@ -31,6 +23,10 @@ type BookData struct {
 	Publisher     string `json:"Publisher"`
 	PublishDate   string `json:"PublishDate"`
 	Review        string `json:"Review"`
+}
+
+type SuccessResponse struct {
+	Success bool
 }
 
 func (app *application) bookCreate(w http.ResponseWriter, r *http.Request) {
@@ -58,28 +54,24 @@ func (app *application) bookCreate(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	log.Printf("Successfully parsed book request: %+v", req)
 	isbn := string(r.PathValue("isbn"))
 
-	data, err := services.GetOpenLibraryBook(isbn)
-	log.Printf("book create:%+v", data)
-
-	if err != nil {
-		app.logger.Error(err.Error())
-		return
-	}
-
-	id := uuid.New()
-	idBytes, err := id.MarshalBinary()
-	if err != nil {
-		app.logger.Error(err.Error())
-		return
-	}
-
-	_, err = app.read.Insert(idBytes, data.Title, data.Author, isbn, data.NumberOfPages, data.Publisher, data.PublishDate, req.Data.Review)
+	_, err = app.read.Insert(isbn, req.Data.Title, req.Data.Author, req.Data.NumberOfPages, req.Data.Publisher, req.Data.PublishDate, req.Data.Review)
 	if err != nil {
 		app.serverError(w, r, err)
 		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+
+	resp := SuccessResponse{
+		Success: true,
+	}
+
+	err = json.NewEncoder(w).Encode(resp)
+	if err != nil {
+		app.serverError(w, r, err)
 	}
 }
 

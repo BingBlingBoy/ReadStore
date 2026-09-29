@@ -21,10 +21,8 @@ async function handleResponse(response: Response) {
 
 async function fetchData(path: string, options: RequestInit) {
     const URL = `${BASE_URL}/api/${path}`
-    console.log("URL:", URL)
     const headers = new Headers(options.headers);
     headers.set('Content-Type', 'application/json')
-    console.log("Options:", options)
     
     let response = await fetch(URL, { ...options, headers })
     
