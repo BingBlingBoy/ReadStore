@@ -4,8 +4,9 @@ import { DarkTheme, DefaultTheme, ThemeProvider } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { useColorScheme } from 'react-native';
 
+import ProfileScreen from '@/components/Profile';
+import { ToastProvider } from '@/context/ToastProvider';
 import { useEffect } from 'react';
-import Index from '.';
 
 SplashScreen.preventAutoHideAsync();
 
@@ -18,8 +19,11 @@ export default function TabLayout() {
   }, [])
 
   return (
-    <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-      <Index />
-    </ThemeProvider>
+    <ToastProvider>
+      <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
+        {/* <Index /> */}
+        <ProfileScreen></ProfileScreen>
+      </ThemeProvider>
+    </ToastProvider>
   );
 }

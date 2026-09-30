@@ -66,7 +66,6 @@ export default function ScannedDataCard(
       Review: formData.review as Book["Review"]
     }
     
-    
     try {
       await api.saveBook(book, formData.isbn)
     } catch (err) {

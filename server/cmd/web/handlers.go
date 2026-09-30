@@ -21,7 +21,7 @@ type FormData struct {
 	PublishDate   string `json:"PublishDate"`
 	Review        string `json:"Review"`
 
-	// Embed validatyor so FormData inherits all the fields and methods of the Validator struct
+	// Embed validator so FormData inherits all the fields and methods of the Validator struct
 	validator.Validator
 }
 
