@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"os"
 	"readstore_server/internal/models"
+	"time"
 
 	_ "github.com/go-sql-driver/mysql" // New import
 	"github.com/joho/godotenv"
@@ -49,9 +50,17 @@ func main() {
 		read:   &models.ReadModel{DB: db},
 	}
 
-	logger.Info("starting server", "addr", addr)
+	srv := &http.Server{
+		Addr:         *addr,
+		Handler:      app.routes(),
+		ErrorLog:     slog.NewLogLogger(logger.Handler(), slog.LevelError),
+		IdleTimeout:  time.Minute,
+		ReadTimeout:  5 * time.Second,
+		WriteTimeout: 10 * time.Second,
+	}
 
-	err = http.ListenAndServe(*addr, app.routes())
+	logger.Info("starting server", "addr", addr)
+	err = srv.ListenAndServe()
 	logger.Error(err.Error())
 	os.Exit(1)
 }
