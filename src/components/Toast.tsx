@@ -37,28 +37,28 @@ export const Toast: React.FC<ToastProps> = memo(({ message, type, onClose, durat
 
     const getBarColor = (): string => {
         switch (type) {
-            case "success": return "#009990";
-            case "warning": return "#FFEB00";
-            case "error": return "#F72C5B";
-            case "info": return "#000957";
+            case 'success': return '#10b981';
+            case 'warning': return '#f59e0b';
+            case 'error': return '#f43f5e';
+            case 'info': return '#6366f1';
         }
     };
 
     const getBackgroundColor = (): string => {
         switch (type) {
-            case "success": return "#5DB996";
-            case "warning": return "#FFF2AF";
-            case "error": return "#FF748B";
-            case "info": return "#074799";
+            case 'success': return '#064e3b';
+            case 'warning': return '#451a03';
+            case 'error': return '#4c0519';
+            case 'info': return '#1e293b';
         }
     };
 
     const getMessageColor = (): string => {
         switch (type) {
-            case "success": return "#FFFFFF";
-            case "warning": return "#000000";
-            case "error": return "#FFFFFF";
-            case "info": return "#FFFFFF";
+            case 'success': return '#6ee7b7';
+            case 'warning': return '#fcd34d';
+            case 'error': return '#fda4af';
+            case 'info': return '#f1f5f9';
         }
     };
 
@@ -67,31 +67,37 @@ export const Toast: React.FC<ToastProps> = memo(({ message, type, onClose, durat
         const iconSize = 22;
 
         switch (type) {
-            case "success": return <Check color={iconColor} size={iconSize} />;
-            case "warning": return <CircleAlert color={iconColor} size={iconSize} />;
-            case "error": return <CircleX color={iconColor} size={iconSize} />;
-            case "info": return <InfoIcon color={iconColor} size={iconSize} />;
+            case 'success': return <Check color={iconColor} size={iconSize} />;
+            case 'warning': return <CircleAlert color={iconColor} size={iconSize} />;
+            case 'error': return <CircleX color={iconColor} size={iconSize} />;
+            case 'info': return <InfoIcon color={iconColor} size={iconSize} />;
         }
     };
 
     return (
-        <Animated.View style={[styles.container, {
-            transform: [{
-                translateY: translateY.interpolate({
-                    inputRange: [0, 50],
-                    outputRange: [-50, notchHeight + (55 * index)]
-                })
-            }]
-        }]}
+        <Animated.View
+            style={[styles.container, {
+                transform: [{
+                    translateY: translateY.interpolate({
+                        inputRange: [0, 50],
+                        outputRange: [-50, notchHeight + (55 * index)]
+                    })
+                }]
+            }]}
+            className='
+                h-14 bg-transparent absolute left-1
+                rounded-md overflow-hidden elevation-md
+                shadow-black/20
+            '
         >
-            <View style={styles.contentRow}>
-                <View style={[styles.bar, { backgroundColor: getBarColor() }]} />
-                <View style={[styles.iconContainer, { backgroundColor: getBackgroundColor() }]}>
+            <View className="w-full h-full flex flex-row rounded-md">
+                <View style={{backgroundColor: getBarColor()}} className={`w-[2%] h-full rounded-t rounded-b`}/>
+                <View style={{backgroundColor: getBackgroundColor()}} className={`w-12 h-full flex justify-center items-center`}>
                     {getIcon()}
                 </View>
-
-                <View style={[styles.textContainer, { backgroundColor: getBackgroundColor() }]}>
-                    <Text style={[styles.text, { color: getMessageColor() }]}>
+                    
+                <View style={{backgroundColor: getBackgroundColor()}} className={`flex-1 h-full rounded-t rounded-b flex justify-center pr-10`}>
+                    <Text style={{color: getMessageColor()}} className={`ml-2 text-lg font-normal`}>
                         {message}
                     </Text>
                 </View>
@@ -102,43 +108,43 @@ export const Toast: React.FC<ToastProps> = memo(({ message, type, onClose, durat
 
 const styles = StyleSheet.create({
     container: {
-        width: Dimensions.get("screen").width - 10, // slightly padded from screen edges
+        width: Dimensions.get('screen').width - 10,
         height: 50,
-        backgroundColor: "transparent",
-        position: "absolute",
+        backgroundColor: 'transparent',
+        position: 'absolute',
         left: 5,
         borderRadius: 5,
         overflow: 'hidden',
-        elevation: 5, // Android shadow
-        shadowColor: '#000', // iOS shadow
+        elevation: 5,
+        shadowColor: '#000',
         shadowOffset: { width: 0, height: 2 },
         shadowOpacity: 0.2,
         shadowRadius: 3,
     },
     contentRow: {
-        width: "100%",
-        height: "100%",
-        flexDirection: "row",
+        width: '100%',
+        height: '100%',
+        flexDirection: 'row',
         borderRadius: 5,
     },
     bar: {
-        width: "2%",
-        height: "100%",
+        width: '2%',
+        height: '100%',
         borderTopLeftRadius: 5,
         borderBottomLeftRadius: 5,
     },
     iconContainer: {
         width: 50,
-        height: "100%",
-        alignItems: "center",
-        justifyContent: "center",
+        height: '100%',
+        alignItems: 'center',
+        justifyContent: 'center',
     },
     textContainer: {
         flex: 1,
-        height: "100%",
+        height: '100%',
         borderTopRightRadius: 5,
         borderBottomRightRadius: 5,
-        justifyContent: "center",
+        justifyContent: 'center',
         paddingRight: 10,
     },
     text: {

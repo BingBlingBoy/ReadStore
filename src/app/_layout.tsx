@@ -19,7 +19,7 @@ export default function TabLayout() {
   }, [])
 
   return (
-    <ToastProvider>
+    <ToastProvider duration={3000}>
       <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
         {/* <Index /> */}
         <ProfileScreen></ProfileScreen>
