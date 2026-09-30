@@ -118,13 +118,13 @@ export default function Index() {
           </View>
         </View>
       </View>
-      {/* {scanned && scannedData && ( */}
+      {scanned && scannedData && (
         <ScannedDataCard
           data={scannedData}
           onClose={handleCloseCard}
           onScanAgain={handleScanAgain}
         />
-      {/* )} */}
+      )}
     </View>
   );
 }

@@ -34,7 +34,7 @@ function get(path: string) {
 }
 
 function post(path: string, body: object) {
-    fetchData(path, {method: 'POST', body: JSON.stringify(body)})
+    return fetchData(path, {method: 'POST', body: JSON.stringify(body)})
 }
 
 function patch(path: string, body: object) {
@@ -43,7 +43,7 @@ function patch(path: string, body: object) {
 
 export const api = {
     saveBook: (data: Book, isbn: string) => {
-        post(`books/create/${isbn}`, data)
+        return post(`books/create/${isbn}`, data)
     },
     getBook: (isbn: string) => {
         return get(`books/${isbn}`)

@@ -1,3 +1,4 @@
+import { useToast } from '@/context/ToastProvider';
 import { api } from '@/lib/api';
 import { useEffect, useRef, useState } from 'react';
 import {
@@ -38,6 +39,10 @@ const initialFormState = {
   review: ""
 };
 
+interface FormResponse {
+  Success: boolean;
+}
+
 export default function ScannedDataCard(
   {
   data,
@@ -50,6 +55,8 @@ export default function ScannedDataCard(
   
   const [modalVisible, setModalVisible] = useState(false)
   const [formData, setFormData] = useState(initialFormState)
+  
+  const {showToast} = useToast()
 
   function updateForm(field: string, value: string) {
     setFormData((prev) => ({...prev, [field.toLowerCase()]: value}))
@@ -67,9 +74,12 @@ export default function ScannedDataCard(
     }
     
     try {
-      await api.saveBook(book, formData.isbn)
+      const res: FormResponse = await api.saveBook(book, formData.isbn)
+      if (res.Success) {
+        showToast("Success", "success")
+      }
     } catch (err) {
-      console.error(err)
+      showToast("Internal server error", "error")
     } finally {
       setModalVisible(false)
     }
@@ -78,13 +88,16 @@ export default function ScannedDataCard(
   async function handleOpenModal(isbn: string) {
     try {
       const res: Book = await api.getOpenBook(isbn)
+      if (!res) {
+        throw new Error('Book not found')
+      }
       for (const [key, val] of Object.entries(res)) {
         updateForm(key, val)
       }
+      setModalVisible(true);
     } catch (err) {
-      console.error(err)
-    } finally {
-        setModalVisible(true)
+      showToast('Could not GET book information. Insert manually', 'error')
+      setModalVisible(false)
     }
   }
 
