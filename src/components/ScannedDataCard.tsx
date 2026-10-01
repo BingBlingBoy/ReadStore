@@ -53,13 +53,48 @@ export default function ScannedDataCard(
   const slideAnim = useRef(new Animated.Value(300)).current;
   const fadeAnim = useRef(new Animated.Value(0)).current;
   
-  const [modalVisible, setModalVisible] = useState(false)
   const [formData, setFormData] = useState(initialFormState)
+  const [errors, setErrors] = useState<Record<string, string>>({})
+  const [modal, setModal] = useState(false)
   
   const {showToast} = useToast()
 
   function updateForm(field: string, value: string) {
     setFormData((prev) => ({...prev, [field.toLowerCase()]: value}))
+    if (errors[field]) {
+      setErrors((prev) => {
+        const copy = {...prev};
+        delete copy[field];
+        return copy;
+      })
+    }
+  }
+  
+  function validateForm(): Record<string, string> {
+    const newErrors: Record<string, string> = {};
+    
+    for (const [k, v] of Object.entries(formData)) {
+      if (k === 'Review') {
+        continue;
+      }
+
+      if (!v || (typeof v === 'string' && !v.trim())) {
+        newErrors[k] = `${k} is blank`;
+        showToast(`${k} is blank`, 'error')
+      }
+    }
+    
+    if (formData.numberofpages < 0) {
+      newErrors['numberofpages'] = 'Number of pages is less than 0'
+      showToast('Number of pages is less than 0', 'error')
+    }
+
+    if (parseInt(formData.isbn) > 17) {
+      newErrors['isbn'] = 'isbn cannot be more than 17'
+      showToast('ISBN cannot be more than 17', 'error')
+    }
+    
+    return newErrors
   }
   
   async function handleFormSubmit() {
@@ -73,6 +108,12 @@ export default function ScannedDataCard(
       Review: formData.review as Book["Review"]
     }
     
+    const validationErrors = validateForm();
+    if (Object.keys(validationErrors).length > 0) {
+      setErrors(validationErrors);
+      return;
+    }
+    
     try {
       const res: FormResponse = await api.saveBook(book, formData.isbn)
       if (res.Success) {
@@ -80,24 +121,29 @@ export default function ScannedDataCard(
       }
     } catch (err) {
       showToast("Internal server error", "error")
+      setModal(true)
     } finally {
-      setModalVisible(false)
+      setModal(true)
     }
   }
   
-  async function handleOpenModal(isbn: string) {
-    try {
-      const res: Book = await api.getOpenBook(isbn)
-      if (!res) {
-        throw new Error('Book not found')
+  async function handleOpenModal(isbn?: string) {
+    if (!isbn) {
+      setModal(true)
+    } else {
+      try {
+        const res: Book = await api.getOpenBook(isbn)
+        if (!res) {
+          throw new Error('Book not found')
+        }
+        for (const [key, val] of Object.entries(res)) {
+          updateForm(key, val)
+        }
+        setModal(true)
+      } catch (err) {
+        showToast('Could not GET book information. Insert manually', 'error')
+        setModal(false)
       }
-      for (const [key, val] of Object.entries(res)) {
-        updateForm(key, val)
-      }
-      setModalVisible(true);
-    } catch (err) {
-      showToast('Could not GET book information. Insert manually', 'error')
-      setModalVisible(false)
     }
   }
 
@@ -117,7 +163,14 @@ export default function ScannedDataCard(
       }),
     ]).start();
   }, [slideAnim, fadeAnim]);
-  
+
+  const titleError = !!errors.title;
+  const authorError = !!errors.author;
+  const isbnError = !!errors.isbn;
+  const numberOfPagesError = !!errors.numberofpages
+  const publisherError = !!errors.publisher
+  const publisherDateError = !!errors.publisherDate
+
   return (
     <Animated.View
       className='
@@ -161,11 +214,16 @@ export default function ScannedDataCard(
           </View>
         </View>
         
-        <View className='flex flex-row justify-start items-center'>
+        <View className='flex flex-row justify-start items-center gap-x-4'>
           <Button variant='secondary' size='md' onPress={() => {
             handleOpenModal(data)
           }}>
             <Text className='text-primaryText'>Send</Text>
+          </Button>
+          <Button variant='secondary' size='md' onPress={() => {
+            handleOpenModal()
+          }}>
+            <Text className='text-primaryText'>Manual Entry</Text>
           </Button>
         </View>
 
@@ -173,10 +231,11 @@ export default function ScannedDataCard(
       <Modal
         animationType='slide'
         transparent={true}
-        visible={modalVisible}
+        visible={modal}
         onRequestClose={() => {
-          setModalVisible(!modalVisible)
+          setModal(false)
         }}
+        className='z-10'
       >
         <View className='flex items-center flex-col bg-surface w-full min-h-screen'>
           <View className='m-2 mb-10 p-4 flex flex-row justify-between items-center w-full'>
@@ -185,8 +244,9 @@ export default function ScannedDataCard(
               variant='free'
               size='sm'
               onPress={() => {
-                setModalVisible(!modalVisible)
+                setModal(false)
                 setFormData(initialFormState)
+                setErrors({})
               }}
             >
               <X className='text-secondaryText w-12 h-12'/>
@@ -197,54 +257,54 @@ export default function ScannedDataCard(
               viewStyle='gap-x-4'
               fieldText='Title'
               value={formData.title}
-              fieldStyle='text-2xl text-primaryText font-semibold'
+              fieldStyle={`text-2xl ${titleError ? 'text-red-400' : 'text-primaryText'} font-semibold`}
+              textInputStyle={`rounded-md ${titleError ? 'bg-red-400' : 'bg-primary'}`}
               onChangeText={(text) => {updateForm('title', text)}}
-              textInputStyle='rounded-md bg-primary'
             >
             </Input>
             <Input
               viewStyle='gap-x-4'
               value={formData.author}
               fieldText='Author'
-              fieldStyle='text-2xl text-primaryText font-semibold'
+              fieldStyle={`text-2xl ${authorError ? 'text-red-400' : 'text-primaryText'} font-semibold`}
+              textInputStyle={`rounded-md ${authorError ? 'bg-red-400' : 'bg-primary'}`}
               onChangeText={(text) => {updateForm('author', text)}}
-              textInputStyle='rounded-md bg-primary'
             >
             </Input>
             <Input
               viewStyle='gap-x-4'
               value={formData.isbn}
               fieldText='ISBN'
-              fieldStyle='text-2xl text-primaryText font-semibold'
+              fieldStyle={`text-2xl ${isbnError ? 'text-red-400' : 'text-primaryText'} font-semibold`}
+              textInputStyle={`rounded-md ${isbnError ? 'bg-red-400' : 'bg-primary'}`}
               onChangeText={(text) => {updateForm('isbn', text)}}
-              textInputStyle='rounded-md bg-primary'
             >
             </Input>
             <Input
               viewStyle='gap-x-4'
               value={String(formData.numberofpages)}
               fieldText='Number Of Pages'
-              fieldStyle='text-2xl text-primaryText font-semibold'
+              fieldStyle={`text-2xl ${numberOfPagesError ? 'text-red-400' : 'text-primaryText'} font-semibold`}
+              textInputStyle={`rounded-md ${numberOfPagesError ? 'bg-red-400' : 'bg-primary'}`}
               onChangeText={(text) => {updateForm('noOfPages', text)}}
-              textInputStyle='rounded-md bg-primary'
             >
             </Input>
             <Input
               viewStyle='gap-x-4'
               value={formData.publisher}
               fieldText='Publisher'
-              fieldStyle='text-2xl text-primaryText font-semibold'
+              fieldStyle={`text-2xl ${publisherError ? 'text-red-400' : 'text-primaryText'} font-semibold`}
+              textInputStyle={`rounded-md ${publisherError ? 'bg-red-400' : 'bg-primary'}`}
               onChangeText={(text) => {updateForm('publisher', text)}}
-              textInputStyle='rounded-md bg-primary'
             >
             </Input>
             <Input
               viewStyle='gap-x-4'
               value={formData.publishdate}
               fieldText='Publisher Date'
-              fieldStyle='text-2xl text-primaryText font-semibold'
+              fieldStyle={`text-2xl ${publisherDateError ? 'text-red-400' : 'text-primaryText'} font-semibold`}
+              textInputStyle={`rounded-md ${publisherDateError ? 'bg-red-400' : 'bg-primary'}`}
               onChangeText={(text) => {updateForm('publisherDate', text)}}
-              textInputStyle='rounded-md bg-primary'
             >
             </Input>
             

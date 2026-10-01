@@ -85,7 +85,7 @@ export const Toast: React.FC<ToastProps> = memo(({ message, type, onClose, durat
                 }]
             }]}
             className='
-                h-14 bg-transparent absolute left-1
+                h-14 bg-transparent absolute z-50 left-1
                 rounded-md overflow-hidden elevation-md
                 shadow-black/20
             '

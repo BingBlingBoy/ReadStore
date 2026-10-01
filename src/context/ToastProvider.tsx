@@ -1,5 +1,5 @@
 import { Toast } from "@/components/Toast";
-import React, { ReactNode, useCallback, useContext, useState } from "react";
+import React, { ReactNode, useCallback, useContext, useRef, useState } from "react";
 
 interface ToastContextProps {
     showToast: (message: string, type: 'success' | 'warning' | 'error' | 'info') => void;
@@ -20,9 +20,10 @@ interface ToastProviderProps {
 
 export function ToastProvider({children, duration = 1000}: ToastProviderProps) {
     const [toast, setToast] = useState<ToastMessage[]>([]);
+    const nextIdRef = useRef(0)
     
     const showToast = useCallback((message: string, type: 'success' | 'warning' | 'error' | 'info') => {
-        const id = Date.now()
+        const id = ++nextIdRef.current;
         setToast(prev => [...prev, {id, message, type}]);
     }, [])
     const removeToast = (id: number) => {
