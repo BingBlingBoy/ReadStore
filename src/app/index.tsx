@@ -10,6 +10,7 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import ScannedDataCard from '../components/ScannedDataCard';
 import ScannerOverlay from '../components/ScannerOverlay';
 import { CameraIcon, ScanBarcode } from '../helper/Icon';
@@ -19,6 +20,7 @@ export default function Index() {
   const [scanned, setScanned] = useState(false);
   const [scanning, setScanning] = useState(true);
   const [scannedData, setScannedData] = useState<string>('');
+  const insets = useSafeAreaInsets();
 
   useEffect(() => {
     if (permission === null) {
@@ -32,8 +34,6 @@ export default function Index() {
       Alert.alert(
         'Permission Required',
         'Camera permission is required to scan QR codes and barcodes.',
-
-        // These are buttons at the bottom
         [
           { text: 'Cancel', style: 'cancel' },
           {
@@ -51,7 +51,7 @@ export default function Index() {
     }
   };
 
-  const handleBarCodeScanned = ({ data }: { data: string;}) => {
+  const handleBarCodeScanned = ({ data }: { data: string; }) => {
     if (!scanned) {
       setScanned(true);
       setScanning(false);
@@ -73,7 +73,7 @@ export default function Index() {
 
   if (permission === null) {
     return (
-      <View className='flex items-center justify-center gap-6 bg-background'>
+      <View className='flex items-center justify-center gap-6 bg-background flex-1'>
         <Text className='text-xl text-secondaryText'>Requesting camera permission...</Text>
       </View>
     );
@@ -96,7 +96,7 @@ export default function Index() {
 
   return (
     <View className='bg-background flex-1'>
-      <StatusBar barStyle="light-content" />
+      <StatusBar barStyle="light-content" translucent backgroundColor="transparent" />
       <CameraView
         onBarcodeScanned={scanned ? undefined : handleBarCodeScanned}
         barcodeScannerSettings={{
@@ -105,19 +105,25 @@ export default function Index() {
         style={StyleSheet.absoluteFill}
       />
       <ScannerOverlay scanning={scanning && !scanned} />
-      <View className={`${Platform.OS === 'ios' ? 'pt-16' : 'pt-10'} pb-5 px-5 bg-background`}>
-        <View className='flex flex-row items-center gap-4'>
-          <View className='w-14 h-14 rounded-2xl flex justify-center items-center opacity-90 bg-surface'>
-            <ScanBarcode className='w-16 h-16 text-primary'/>
-          </View>
-          <View>
-            <Text className='text-2xl font-semibold text-primaryText'>QR & Barcode Scanner</Text>
-            <Text className='text-sm mt-4 text-secondaryText'>
-              {scanning ? 'Position code within frame' : 'Scan complete'}
-            </Text>
+
+      {/* Only show the scanner header when not scanned */}
+      {!scanned && (
+        <View style={{ paddingTop: insets.top + 10 }} className='pb-5 px-5 bg-background'>
+          <View className='flex flex-row items-center gap-4'>
+            <View className='w-14 h-14 rounded-2xl flex justify-center items-center opacity-90 bg-surface'>
+              <ScanBarcode className='w-16 h-16 text-primary'/>
+            </View>
+            <View>
+              <Text className='text-2xl font-semibold text-primaryText'>QR & Barcode Scanner</Text>
+              <Text className='text-sm mt-4 text-secondaryText'>
+                {scanning ? 'Position code within frame' : 'Scan complete'}
+              </Text>
+            </View>
           </View>
         </View>
-      </View>
+      )}
+
+      {/* Scanned Modal / Card view */}
       {scanned && scannedData && (
         <ScannedDataCard
           data={scannedData}
