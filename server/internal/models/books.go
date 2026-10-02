@@ -13,6 +13,8 @@ type Book struct {
 	Publisher   string
 	PublishDate string
 	Review      string
+	CoverLarge  string
+	CoverSmall  string
 }
 
 type ReadModel struct {
@@ -27,14 +29,16 @@ func (m *ReadModel) Insert(
 	publisher string,
 	publishDate string,
 	review string,
+	coverSmall string,
+	coverLarge string,
 ) (int, error) {
 	stmt := `
-		INSERT INTO book (title, author, isbn, no_of_pages, publisher, publish_date, review) VALUES (
-			?, ?, ?, ?, ?, ?, ? 
+		INSERT INTO book (title, author, isbn, no_of_pages, publisher, publish_date, review, SCover, LCover) VALUES (
+			?, ?, ?, ?, ?, ?, ?, ?, ?
 		);
 	`
 
-	res, err := m.DB.Exec(stmt, title, author, isbn, noOfPages, publisher, publishDate, review)
+	res, err := m.DB.Exec(stmt, title, author, isbn, noOfPages, publisher, publishDate, review, coverSmall, coverLarge)
 	if err != nil {
 		return 0, err
 	}
@@ -49,14 +53,14 @@ func (m *ReadModel) Insert(
 
 func (m *ReadModel) Get(isbn string) (Book, error) {
 	stmt := `
-		SELECT title, author, isbn, no_of_pages, publisher, publish_date, review FROM book
+		SELECT title, author, isbn, no_of_pages, publisher, publish_date, review, SCover, LCover FROM book
 		WHERE isbn = ?;
 	`
 
 	row := m.DB.QueryRow(stmt, isbn)
 
 	var b Book
-	err := row.Scan(&b.Title, &b.Author, &b.ISBN, &b.NoOfPages, &b.Publisher, &b.PublishDate, &b.Review)
+	err := row.Scan(&b.Title, &b.Author, &b.ISBN, &b.NoOfPages, &b.Publisher, &b.PublishDate, &b.Review, &b.CoverSmall, &b.CoverLarge)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return Book{}, ErrNoRecord
@@ -70,7 +74,7 @@ func (m *ReadModel) Get(isbn string) (Book, error) {
 
 func (m *ReadModel) GetAll() ([]Book, error) {
 	stmt := `
-		SELECT title, author, isbn, no_of_pages, publisher, publish_date, review FROM book
+		SELECT title, author, isbn, no_of_pages, publisher, publish_date, review, SCover, LCover FROM book
 	`
 
 	rows, err := m.DB.Query(stmt)
@@ -83,7 +87,7 @@ func (m *ReadModel) GetAll() ([]Book, error) {
 
 	for rows.Next() {
 		var b Book
-		err := rows.Scan(&b.Title, &b.ISBN, &b.Author, &b.NoOfPages, &b.Publisher, &b.PublishDate, &b.Review)
+		err := rows.Scan(&b.Title, &b.ISBN, &b.Author, &b.NoOfPages, &b.Publisher, &b.PublishDate, &b.Review, &b.CoverSmall, &b.CoverLarge)
 		if err != nil {
 			return nil, err
 		}

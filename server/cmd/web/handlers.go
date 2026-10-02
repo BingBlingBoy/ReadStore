@@ -20,6 +20,8 @@ type FormData struct {
 	Publisher     string `json:"Publisher"`
 	PublishDate   string `json:"PublishDate"`
 	Review        string `json:"Review"`
+	CoverLarge    string `json:"CoverLarge"`
+	CoverSmall    string `json:"CoverSmall"`
 
 	// Embed validator so FormData inherits all the fields and methods of the Validator struct
 	validator.Validator
@@ -75,7 +77,7 @@ func (app *application) bookCreate(w http.ResponseWriter, r *http.Request) {
 
 	isbn := string(r.PathValue("isbn"))
 
-	_, err = app.read.Insert(isbn, form.Title, form.Author, form.NumberOfPages, form.Publisher, form.PublishDate, form.Review)
+	_, err = app.read.Insert(isbn, form.Title, form.Author, form.NumberOfPages, form.Publisher, form.PublishDate, form.Review, form.CoverSmall, form.CoverLarge)
 	if err != nil {
 		app.serverError(w, r, err)
 		return
@@ -121,7 +123,6 @@ func (app *application) bookGetOpenLibrary(w http.ResponseWriter, r *http.Reques
 	isbn := string(r.PathValue("isbn"))
 
 	book, err := services.GetOpenLibraryBook(isbn)
-	fmt.Printf("%+v", book)
 	if err != nil {
 		app.logger.Error(err.Error())
 		return

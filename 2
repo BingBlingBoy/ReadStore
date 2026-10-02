@@ -29,8 +29,8 @@ interface Book {
   Publisher: string;
   Review: string;
   Title: string;
-  CoverSmall: string;
-  CoverLarge: string;
+  SCover: string;
+  LCover: string;
 }
 
 const initialFormState = {
@@ -41,8 +41,8 @@ const initialFormState = {
   publisher: "",
   publishdate: "",
   review: "",
-  coversmall: "",
-  coverlarge: ""
+  scover: "",
+  lcover: ""
 };
 
 interface FormResponse {
@@ -113,8 +113,8 @@ export default function ScannedDataCard(
       Publisher: formData.publisher,
       PublishDate: formData.publishdate,
       Review: formData.review,
-      CoverSmall: formData.coversmall,
-      CoverLarge: formData.coverlarge
+      SCover: formData.scover,
+      LCover: formData.lcover
     }
     
     const validationErrors = validateForm();
@@ -140,6 +140,7 @@ export default function ScannedDataCard(
     } else {
       try {
         const res: Book = await api.getOpenBook(isbn);
+        console.log(res)
         if (!res) {
           throw new Error('Book not found');
         }
@@ -169,10 +170,6 @@ export default function ScannedDataCard(
       }),
     ]).start();
   }, [slideAnim, fadeAnim]);
-  
-  // useEffect(() => {
-  //   console.log(formData)
-  // }, [formData])
 
   const titleError = !!errors.title;
   const authorError = !!errors.author;
@@ -268,15 +265,10 @@ export default function ScannedDataCard(
             </Button>
           </View>
           
-          <View className='w-full px-4'>
-            <Image
-              className='w-full h-80 mb-10 rounded-md'
-              resizeMode='contain'
-              source={{
-                uri: formData.coverlarge
-              }}
-            />
-          </View>
+          <Image
+            source={{
+            }}
+          />
 
           <ScrollView className='w-full flex-1 px-4' contentContainerStyle={{ paddingBottom: 50 }}>
             <View className='w-full flex flex-col gap-y-4'>
