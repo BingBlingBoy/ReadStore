@@ -121,6 +121,7 @@ func (app *application) bookGetOpenLibrary(w http.ResponseWriter, r *http.Reques
 	isbn := string(r.PathValue("isbn"))
 
 	book, err := services.GetOpenLibraryBook(isbn)
+	fmt.Printf("%+v", book)
 	if err != nil {
 		app.logger.Error(err.Error())
 		return

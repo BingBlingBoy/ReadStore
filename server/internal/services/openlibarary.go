@@ -23,7 +23,14 @@ type BookData struct {
 	Authors       []Author    `json:"authors"`
 	Publishers    []Publisher `json:"publishers"`
 	PublishDate   string      `json:"publish_date"`
+	Cover         CoverData   `json:"cover"`
 	ISBN          string
+}
+
+type CoverData struct {
+	Small  string `json:"small"`
+	Medium string `json:"medium"`
+	Large  string `json:"large"`
 }
 
 type Author struct {
@@ -41,6 +48,8 @@ type FormattedResponse struct {
 	Publisher     string
 	PublishDate   string
 	ISBN          string
+	CoverSmall    string
+	CoverLarge    string
 }
 
 func GetOpenLibraryBook(isbn string) (FormattedResponse, error) {
@@ -103,5 +112,7 @@ func formatBookData(book BookData, isbn string) FormattedResponse {
 		Publisher:     strings.Join(pubNames, ", "),
 		PublishDate:   book.PublishDate,
 		ISBN:          isbn,
+		CoverSmall:    book.Cover.Small,
+		CoverLarge:    book.Cover.Large,
 	}
 }
