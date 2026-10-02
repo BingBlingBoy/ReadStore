@@ -148,3 +148,43 @@ func (app *application) bookViewAll(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprintf(w, "%+v", book)
 	}
 }
+
+func (app *application) bookCoverUpload(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		app.serverError(w, r, errors.New("Method doesn't match"))
+		return
+	}
+
+	r.ParseMultipartForm(10 << 20)
+
+	// <input name="bookCover">
+	file, handler, err := r.FormFile("bookCover")
+	if err != nil {
+		app.serverError(w, r, err)
+		return
+	}
+	defer file.Close()
+
+	fileBytes, err := io.ReadAll(file)
+	if err != nil {
+		app.serverError(w, r, err)
+		return
+	}
+
+	if !validator.IsValidFileType(fileBytes) {
+		app.serverError(w, r, err)
+		return
+	}
+
+	dst, err := services.CreateFile(handler.Filename)
+	if err != nil {
+		app.serverError(w, r, err)
+		return
+	}
+	defer dst.Close()
+
+	// Proceed with saving the file
+	if _, err := dst.Write(fileBytes); err != nil {
+		app.serverError(w, r, err)
+	}
+}

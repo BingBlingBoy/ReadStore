@@ -1,6 +1,7 @@
 package validator
 
 import (
+	"net/http"
 	"strings"
 	"unicode/utf8"
 )
@@ -40,4 +41,9 @@ func MaxChars(value string, n int) bool {
 }
 func MinChars(value string, n int) bool {
 	return utf8.RuneCountInString(value) >= n
+}
+
+func IsValidFileType(file []byte) bool {
+	fileType := http.DetectContentType(file)
+	return strings.HasPrefix(fileType, "image/") // Only allow images
 }
