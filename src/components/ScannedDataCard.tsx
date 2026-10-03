@@ -33,6 +33,11 @@ interface Book {
   CoverLarge: string;
 }
 
+interface ModalType {
+  isOpen: boolean;
+  type: 'OpenInput' | 'ManualInput' | null
+}
+
 const initialFormState = {
   title: "",
   author: "",
@@ -62,7 +67,10 @@ export default function ScannedDataCard(
   
   const [formData, setFormData] = useState(initialFormState);
   const [errors, setErrors] = useState<Record<string, string>>({});
-  const [modal, setModal] = useState(false);
+  const [modal, setModal] = useState<ModalType>({
+    isOpen: false,
+    type: null 
+  });
   
   const { showToast } = useToast();
 
@@ -127,7 +135,7 @@ export default function ScannedDataCard(
       const res: FormResponse = await api.saveBook(book, formData.isbn);
       if (res.Success) {
         showToast("Success", "success");
-        setModal(false);
+        setModal((prev) => ({...prev, isOpen: false}));
       }
     } catch (err) {
       showToast("Internal server error", "error");
@@ -136,7 +144,7 @@ export default function ScannedDataCard(
   
   async function handleOpenModal(isbn?: string) {
     if (!isbn) {
-      setModal(true);
+      setModal((prev) => ({isOpen: true, type: 'ManualInput'}));
     } else {
       try {
         const res: Book = await api.getOpenBook(isbn);
@@ -146,10 +154,10 @@ export default function ScannedDataCard(
         for (const [key, val] of Object.entries(res)) {
           updateForm(key, String(val ?? ''));
         }
-        setModal(true);
+        setModal((prev) => ({isOpen: true, type: 'OpenInput'}));
       } catch (err) {
         showToast('Could not GET book information. Insert manually', 'error');
-        setModal(true);
+        setModal((prev) => ({...prev, isOpen: false}));
       }
     }
   }
@@ -246,8 +254,11 @@ export default function ScannedDataCard(
       </Animated.View>
 
       <CustomModal
-        visible={modal}
-        onRequestClose={() => setModal(false)}
+        visible={modal.isOpen}
+          onRequestClose={() => setModal((prev) => ({
+            ...prev, 
+            isOpen: false 
+          }))}
       >
         <View 
           style={{ paddingTop: insets.top }} 
@@ -259,7 +270,7 @@ export default function ScannedDataCard(
               variant='free'
               size='sm'
               onPress={() => {
-                setModal(false);
+                setModal((prev) => ({...prev, isOpen: false}));
                 setFormData(initialFormState);
                 setErrors({});
               }}
@@ -268,15 +279,22 @@ export default function ScannedDataCard(
             </Button>
           </View>
           
-          <View className='w-full px-4'>
-            <Image
-              className='w-full h-80 mb-10 rounded-md'
-              resizeMode='contain'
-              source={{
-                uri: formData.coverlarge
-              }}
-            />
-          </View>
+          {modal.type === 'OpenInput' && 
+            <View className='w-full px-4'>
+              <Image
+                className='w-full h-80 mb-10 rounded-md'
+                resizeMode='contain'
+                source={{
+                  uri: formData.coverlarge
+                }}
+              />
+            </View>
+          }
+          {modal.type === 'ManualInput' && 
+            <View className='w-full px-4'>
+              <Text className='text-2xl text-purple-400'>THE MAN</Text>
+            </View>
+          }
 
           <ScrollView className='w-full flex-1 px-4' contentContainerStyle={{ paddingBottom: 50 }}>
             <View className='w-full flex flex-col gap-y-4'>
