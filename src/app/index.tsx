@@ -21,6 +21,8 @@ export default function Index() {
   const [scanning, setScanning] = useState(true);
   const [scannedData, setScannedData] = useState<string>('');
   const insets = useSafeAreaInsets();
+  
+  const [isCameraReady, setIsCameraReady] = useState(false);
 
   useEffect(() => {
     if (permission === null) {
@@ -70,7 +72,7 @@ export default function Index() {
     setScanned(false);
     setScanning(true);
   };
-
+  
   if (permission === null) {
     return (
       <View className='flex items-center justify-center gap-6 bg-background flex-1'>
@@ -98,15 +100,15 @@ export default function Index() {
     <View className='bg-background flex-1'>
       <StatusBar barStyle="light-content" translucent backgroundColor="transparent" />
       <CameraView
-        onBarcodeScanned={scanned ? undefined : handleBarCodeScanned}
+        onBarcodeScanned={(scanned || (Platform.OS === 'web' && !isCameraReady)) ? undefined : handleBarCodeScanned}
         barcodeScannerSettings={{
-          barcodeTypes: ['qr', 'code128', 'code39', 'ean13', 'ean8', 'upc_a', 'upc_e'],
+          barcodeTypes: ['qr', 'code128', 'code39', 'ean13', 'ean8', 'upc_a', 'upc_e']
         }}
+        onCameraReady={() => setIsCameraReady(true)}
         style={StyleSheet.absoluteFill}
       />
       <ScannerOverlay scanning={scanning && !scanned} />
 
-      {/* Only show the scanner header when not scanned */}
       {!scanned && (
         <View style={{ paddingTop: insets.top + 10 }} className='pb-5 px-5 bg-background'>
           <View className='flex flex-row items-center gap-4'>
@@ -123,7 +125,6 @@ export default function Index() {
         </View>
       )}
 
-      {/* Scanned Modal / Card view */}
       {scanned && scannedData && (
         <ScannedDataCard
           data={scannedData}
