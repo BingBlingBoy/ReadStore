@@ -1,7 +1,9 @@
 import { useToast } from '@/context/ToastProvider';
 import { api } from '@/lib/api';
+import * as ImagePicker from 'expo-image-picker';
 import { useEffect, useRef, useState } from 'react';
 import {
+  Alert,
   Animated,
   Image,
   ScrollView,
@@ -72,7 +74,53 @@ export default function ScannedDataCard(
     type: null 
   });
   
+  const [image, setImage] = useState<string | null>(null);
+  
   const { showToast } = useToast();
+  
+  async function pickImage() {
+    const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
+
+    if (!permissionResult.granted) {
+      Alert.alert('Permission required', 'Permission to access the media library is required.')
+      return
+    }
+
+    let result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ['images', 'videos'],
+      allowsEditing: true,
+      aspect: [4, 3],
+      quality: 1
+    })
+    
+    console.log(result)
+
+    if (!result.canceled) {
+      setImage(result.assets[0].uri)
+    }
+  }
+  
+  async function takePhoto() {
+    const permissionResult = await ImagePicker.requestCameraPermissionsAsync();
+
+    if (!permissionResult.granted) {
+      Alert.alert('Permission required', 'Permission to access the camera is required')
+      return
+    }
+    
+    let result = await ImagePicker.launchCameraAsync({
+      allowsEditing: true,
+      aspect: [4, 3],
+      quality: 1,
+    })
+    
+    console.log(result);
+    
+    if (!result.canceled) {
+      setImage(result.assets[0].uri)
+    }
+  }
+   
 
   function updateForm(field: string, value: string) {
     setFormData((prev) => ({...prev, [field.toLowerCase()]: value}))
@@ -290,13 +338,35 @@ export default function ScannedDataCard(
               />
             </View>
           }
-          {modal.type === 'ManualInput' && 
-            <View className='w-full px-4'>
-              <Text className='text-2xl text-purple-400'>THE MAN</Text>
-            </View>
-          }
 
           <ScrollView className='w-full flex-1 px-4' contentContainerStyle={{ paddingBottom: 50 }}>
+            {modal.type === 'ManualInput' && 
+              <View className='flex-1 px-4 items-center justify-center gap-y-2 mb-10'>
+                <Button
+                  variant='primary'
+                  size='lg'
+                  className='justify-center'
+                  onPress={pickImage}
+                >
+                  <Text className='text-xl font-bold color-primaryText'>Pick an image from camera roll</Text>
+                </Button>
+                <Button
+                  variant='primary'
+                  size='lg'
+                  className='justify-center'
+                  onPress={takePhoto}
+                >
+                  <Text className='text-xl font-bold color-primaryText'>Take photo</Text>
+                </Button>
+                {image &&
+                <Image
+                    source={{uri: image}}
+                    className='w-full h-80 rounded-md'
+                    resizeMode='contain'
+                  />
+                }
+              </View>
+            }
             <View className='w-full flex flex-col gap-y-4'>
               <Input
                 viewStyle='gap-x-4'
